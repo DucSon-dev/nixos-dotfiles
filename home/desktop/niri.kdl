@@ -46,7 +46,7 @@ binds {
     Mod+D { spawn "fuzzel"; }               // [D]rawer / App Launcher
     Mod+Return { spawn "kitty"; }       // Standard fallback for Terminal
     Mod+Slash { spawn "bash" "/home/d6n/.config/noctalia/scripts/cheatsheet.sh"; } // [?] Cheat Sheet
-    Mod+G { spawn "kitty" "--class" "git-tree-float" "-e" "lazygit"; }
+    Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; }
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE
