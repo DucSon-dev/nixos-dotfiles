@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+    # Dev & Tools
     nodejs_22
     pnpm
     yarn
@@ -17,5 +18,9 @@
     kitty
     fastfetch
     lazygit
+    
+    # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
+    adwaita-icon-theme
+    vanilla-dmz
   ];
 }

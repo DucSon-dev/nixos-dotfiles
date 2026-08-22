@@ -10,6 +10,11 @@ input {
     }
 }
 
+cursor {
+    xcursor-theme "Vanilla-DMZ"
+    xcursor-size 24
+}
+
 layout {
     gaps 14
     border {
@@ -107,4 +112,11 @@ binds {
     // 7. SYSTEM & POWER
     // ==========================================
     Mod+Shift+E { quit; }                   // [E]xit session
+}
+
+animations {
+    window-close {
+        duration-ms 150
+        curve "ease-out-quad"
+    }
 }
