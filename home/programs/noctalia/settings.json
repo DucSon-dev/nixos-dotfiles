@@ -1,0 +1,86 @@
+{
+  "general": {
+    "animationSpeed": 1,
+    "radiusRatio": 1,
+    "telemetryEnabled": false
+  },
+  "bar": {
+    "barType": "floating",
+    "position": "top",
+    "density": "default",
+    "backgroundOpacity": 0.85,
+    "outerCorners": false,
+    "widgets": {
+      "left": [
+        {
+          "id": "Launcher",
+          "icon": "rocket",
+          "enableColorization": false
+        },
+        {
+          "id": "ActiveWindow",
+          "maxWidth": 160,
+          "showIcon": true,
+          "showText": true
+        },
+        {
+          "id": "MediaMini",
+          "showAlbumArt": true
+        }
+      ],
+      "center": [
+        {
+          "id": "Workspace",
+          "hideUnoccupied": false,
+          "showBadge": true
+        },
+        {
+          "id": "Clock",
+          "formatHorizontal": "HH:mm ddd, MMM dd"
+        }
+      ],
+      "right": [
+        {
+          "id": "KeyboardLayout"
+        },
+        {
+          "id": "SystemMonitor",
+          "compactMode": true,
+          "showCpuUsage": true,
+          "showMemoryUsage": true,
+          "showCpuTemp": true
+        },
+        {
+          "id": "Volume",
+          "displayMode": "onhover"
+        },
+        {
+          "id": "Brightness",
+          "displayMode": "onhover"
+        },
+        {
+          "id": "Battery",
+          "displayMode": "graphic-clean"
+        },
+        {
+          "id": "NotificationHistory"
+        },
+        {
+          "id": "ControlCenter",
+          "icon": "noctalia"
+        }
+      ]
+    }
+  },
+  "colorSchemes": {
+    "darkMode": true,
+    "predefinedScheme": "Catppuccin",
+    "useWallpaperColors": false
+  },
+  "ui": {
+    "fontDefault": "Geist",
+    "fontFixed": "GeistMono Nerd Font",
+    "panelBackgroundOpacity": 0.88,
+    "panelsAttachedToBar": true
+  }
+}
