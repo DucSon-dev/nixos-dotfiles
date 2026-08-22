@@ -31,6 +31,10 @@ layout {
 window-rule {
     geometry-corner-radius 16
     clip-to-geometry true
+    match app-id="^git-tree-float$"
+    open-floating true
+    default-column-width { proportion 0.85; }
+    default-window-height { proportion 0.85; }
 }
 
 binds {
@@ -42,7 +46,7 @@ binds {
     Mod+D { spawn "fuzzel"; }               // [D]rawer / App Launcher
     Mod+Return { spawn "kitty"; }       // Standard fallback for Terminal
     Mod+Slash { spawn "bash" "/home/d6n/.config/noctalia/scripts/cheatsheet.sh"; } // [?] Cheat Sheet
-    
+    Mod+G { spawn "kitty" "--class" "git-tree-float" "-e" "lazygit"; }
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE

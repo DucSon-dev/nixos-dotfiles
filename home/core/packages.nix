@@ -16,5 +16,6 @@
     firefox
     kitty
     fastfetch
+    lazygit
   ];
 }
