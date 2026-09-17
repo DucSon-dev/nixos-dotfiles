@@ -9,7 +9,7 @@ fi
 # Define Menu List: Label mapped to executable command
 declare -A ACTIONS
 ACTIONS["󰌌  SUPER + T        ❯  Launch Kitty Terminal"]="kitty"
-ACTIONS["󰌌  SUPER + B        ❯  Launch Firefox Browser"]="firefox"
+ACTIONS["󰌌  SUPER + B        ❯  Launch Firefox Browser"]="brave"
 ACTIONS["󰌌  SUPER + D        ❯  Application Drawer"]="fuzzel"
 ACTIONS["󰌌  SUPER + S        ❯  Interactive Screenshot Area"]="niri msg action screenshot"
 ACTIONS["󰌌  SUPER + Shift+S  ❯  Fullscreen Screenshot"]="niri msg action screenshot-screen"

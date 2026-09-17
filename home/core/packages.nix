@@ -15,6 +15,7 @@
     swaybg
     noctalia-shell
     firefox
+    brave
     kitty
     fastfetch
     lazygit
