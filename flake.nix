@@ -13,7 +13,7 @@
   outputs = { self, nixpkgs, home-manager, niri, ... }@inputs:
     let
       # Define system identity variables in a centralized place
-      username = "d6n";
+      username = "ducson";
       hostname = "nixos";
     in {
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {

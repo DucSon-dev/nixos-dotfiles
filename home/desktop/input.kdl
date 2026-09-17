@@ -1,0 +1,12 @@
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+    }
+}
+
+cursor {
+    xcursor-theme "Vanilla-DMZ"
+    xcursor-size 24
+}

@@ -1,0 +1,31 @@
+layout {
+    gaps 14
+    border {
+        off
+    }
+    focus-ring {
+        width 2
+        active-color "#ffffff33"
+        inactive-color "#00000000"
+    }
+    struts {
+        left 8
+        right 8
+        top 8
+        bottom 8
+    }
+}
+
+// Global window rules and floating layout overrides
+window-rule {
+    geometry-corner-radius 16
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+window-rule {
+    match app-id="^git-tree-float$"
+    open-floating true
+    default-column-width { proportion 0.85; }
+    default-window-height { proportion 0.85; }
+}

@@ -28,4 +28,5 @@
     auto-optimise-store = true;
   };
   nixpkgs.config.allowUnfree = true;
+  services.speechd.enable = false;
 }
