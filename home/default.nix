@@ -44,6 +44,8 @@
     ./programs/kitty.nix
     ./programs/fuzzel.nix
     ./programs/noctalia
+    ./programs/fastfetch.nix
+    ./programs/zsh.nix
   ];
 
   programs.home-manager.enable = true;

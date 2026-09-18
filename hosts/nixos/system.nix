@@ -52,4 +52,7 @@
       }
     });
   '';
+   # 6. Enable Zsh system-wide and configure user shell
+  programs.zsh.enable = true;
+  users.defaultUserShell = pkgs.zsh;
 }
