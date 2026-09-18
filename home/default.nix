@@ -40,6 +40,7 @@
     ./core/packages.nix
     ./core/fonts.nix
     ./desktop/niri.nix
+    ./desktop/hyprlock.nix
     ./programs/kitty.nix
     ./programs/fuzzel.nix
     ./programs/noctalia

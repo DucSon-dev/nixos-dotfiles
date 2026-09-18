@@ -1,22 +1,17 @@
 { config, pkgs, ... }:
 
 {
-  # Bootloader & Networking
+  # 1. Bootloader & Network Configuration
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
   time.timeZone = "Asia/Ho_Chi_Minh";
 
-  # AMD GPU Drivers & Acceleration
-  boot.initrd.kernelModules = [ "amdgpu" ];
-  services.xserver.videoDrivers = [ "amdgpu" ];
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
-
-  # RAM 6GB & SSD Optimization
+  # 2. PAM Configuration for Screen Locking
+  security.pam.services.hyprlock = {};
+  security.pam.services.login = {};
+  # 3. Memory Optimization and Garbage Collection
   zramSwap.enable = true;
   nix.gc = {
     automatic = true;
@@ -28,5 +23,33 @@
     auto-optimise-store = true;
   };
   nixpkgs.config.allowUnfree = true;
-  services.speechd.enable = false;
+
+  # 4. Global Icon Themes & Desktop Portals
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  environment.systemPackages = with pkgs; [
+    adwaita-icon-theme
+    hicolor-icon-theme
+    librsvg
+    gdk-pixbuf
+  ];
+
+  # 5. Polkit Rules for Power Management
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if ((action.id == "org.freedesktop.login1.power-off" ||
+           action.id == "org.freedesktop.login1.power-off-multiple-sessions" ||
+           action.id == "org.freedesktop.login1.reboot" ||
+           action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
+           action.id == "org.freedesktop.login1.suspend" ||
+           action.id == "org.freedesktop.login1.hibernate") &&
+          subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 }

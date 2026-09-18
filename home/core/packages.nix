@@ -19,7 +19,13 @@
     kitty
     fastfetch
     lazygit
-    
+    nautilus
+    # System Utilities & Monitoring
+    btop
+    brightnessctl
+    swaylock-effects
+    # Office Suite
+    libreoffice-fresh
     # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
     adwaita-icon-theme
     vanilla-dmz

@@ -1,15 +1,79 @@
 {
   "general": {
-    "animationSpeed": 1,
-    "radiusRatio": 1,
+    "allowPanelsOnScreenWithoutBar": true,
+    "allowPasswordWithFprintd": false,
+    "animationDisabled": false,
+    "animationSpeed": 1.1,
+    "autoStartAuth": true,
+    "avatarImage": "/home/ducson/.face",
+    "boxRadiusRatio": 1.2,
+    "clockFormat": "HH:mm",
+    "clockStyle": "minimal",
+    "compactLockScreen": true,
+    "dimmerOpacity": 0.88,
+    "enableBlurBehind": true,
+    "enableLockScreenCountdown": false,
+    "enableLockScreenMediaControls": false,
+    "enableShadows": true,
+    "forceBlackScreenCorners": false,
+    "iRadiusRatio": 1.1,
+    "lockOnSuspend": true,
+    "lockScreenAnimations": false,
+    "lockScreenBlur": 7,
+    "lockScreenCountdownDuration": 0,
+    "lockScreenMonitors": [],
+    "lockScreenTint": 0.4,
+    "passwordChars": true,
+    "radiusRatio": 1.2,
+    "reverseScroll": false,
+    "scaleRatio": 1,
+    "screenRadiusRatio": 1,
+    "shadowDirection": "bottom_right",
+    "shadowOffsetX": 0,
+    "shadowOffsetY": 4,
+    "showChangelogOnStartup": false,
+    "showHibernateOnLockScreen": false,
+    "showScreenCorners": false,
+    "showSessionButtonsOnLockScreen": false,
+    "smoothScrollEnabled": true,
     "telemetryEnabled": false
   },
+  "desktopWidgets": {
+    "enabled": false,
+    "gridSnap": false,
+    "gridSnapScale": false,
+    "monitorWidgets": [],
+    "overviewEnabled": false
+  },
   "bar": {
+    "autoHideDelay": 500,
+    "autoShowDelay": 150,
+    "backgroundOpacity": 0.78,
     "barType": "floating",
-    "position": "top",
-    "density": "default",
-    "backgroundOpacity": 0.85,
+    "capsuleColorKey": "none",
+    "capsuleOpacity": 0.9,
+    "contentPadding": 3,
+    "density": "compact",
+    "displayMode": "always_visible",
+    "enableExclusionZoneInset": true,
+    "fontScale": 1,
+    "frameRadius": 16,
+    "frameThickness": 6,
+    "hideOnOverview": false,
+    "marginHorizontal": 12,
+    "marginVertical": 8,
+    "middleClickAction": "none",
+    "mouseWheelAction": "none",
     "outerCorners": false,
+    "position": "top",
+    "reverseScroll": false,
+    "rightClickAction": "controlCenter",
+    "rightClickFollowMouse": true,
+    "showCapsule": true,
+    "showOnWorkspaceSwitch": true,
+    "showOutline": true,
+    "useSeparateOpacity": false,
+    "widgetSpacing": 6,
     "widgets": {
       "left": [
         {
@@ -19,9 +83,10 @@
         },
         {
           "id": "ActiveWindow",
-          "maxWidth": 160,
+          "maxWidth": 180,
           "showIcon": true,
-          "showText": true
+          "showText": true,
+          "hideMode": "hidden"
         },
         {
           "id": "MediaMini",
@@ -36,7 +101,7 @@
         },
         {
           "id": "Clock",
-          "formatHorizontal": "HH:mm ddd, MMM dd"
+          "formatHorizontal": "HH:mm  ·  ddd, MMM dd"
         }
       ],
       "right": [
@@ -48,7 +113,7 @@
           "compactMode": true,
           "showCpuUsage": true,
           "showMemoryUsage": true,
-          "showCpuTemp": true
+          "showCpuTemp": false
         },
         {
           "id": "Volume",
@@ -74,13 +139,57 @@
   },
   "colorSchemes": {
     "darkMode": true,
+    "generationMethod": "tonal-spot",
     "predefinedScheme": "Catppuccin",
+    "schedulingMode": "off",
+    "syncGsettings": true,
     "useWallpaperColors": false
   },
   "ui": {
+    "boxBorderEnabled": true,
     "fontDefault": "Geist",
+    "fontDefaultScale": 1.0,
     "fontFixed": "GeistMono Nerd Font",
-    "panelBackgroundOpacity": 0.88,
-    "panelsAttachedToBar": true
+    "fontFixedScale": 1.0,
+    "panelBackgroundOpacity": 0.85,
+    "panelsAttachedToBar": true,
+    "scrollbarAlwaysVisible": false,
+    "settingsPanelMode": "attached",
+    "settingsPanelSideBarCardStyle": true,
+    "tooltipsEnabled": true,
+    "translucentWidgets": true
+  },
+  "location": {
+    "analogClockInCalendar": false,
+    "autoLocate": true,
+    "hideWeatherCityName": false,
+    "name": "Hanoi",
+    "showCalendarEvents": true,
+    "showCalendarWeather": true,
+    "use12hourFormat": false,
+    "weatherEnabled": true,
+    "weatherShowEffects": false,
+    "weatherTaliaMascotAlways": false
+  },
+"wallpaper": {
+    "directory": "/home/ducson/Pictures/Wallpapers/monochrome-topo",
+    "enabled": true,
+    "fillColor": "#000000",
+    "fillMode": "crop",
+    "hideWallpaperFilenames": true,
+    "overviewBlur": 0.4,
+    "overviewEnabled": false,
+    "overviewTint": 0.6,
+    "randomIntervalSec": 600,
+    "setWallpaperOnAllMonitors": true,
+    "showHiddenFiles": false,
+    "skipStartupTransition": false,
+    "transitionDuration": 1200,
+    "transitionEdgeSmoothness": 0.08,
+    "transitionType": [
+      "fade",
+      "pixelate"
+    ],
+    "wallpaperChangeMode": "random"
   }
 }

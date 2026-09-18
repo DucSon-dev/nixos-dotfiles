@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
     ./system.nix
     ./services.nix
+    ./i18n.nix
   ];
 
   # Primary User Configuration dynamically resolved from flake arguments
