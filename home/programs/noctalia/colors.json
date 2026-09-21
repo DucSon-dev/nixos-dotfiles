@@ -1,0 +1,15 @@
+{
+  "mPrimary": "#fafafa",
+  "mOnPrimary": "#09090b",
+  "mPrimaryContainer": "#27272a",
+  "mOnPrimaryContainer": "#fafafa",
+  "mSecondary": "#a1a1aa",
+  "mOnSecondary": "#18181b",
+  "mSurface": "#09090b",
+  "mOnSurface": "#fafafa",
+  "mSurfaceVariant": "#18181b",
+  "mOnSurfaceVariant": "#a1a1aa",
+  "mOutline": "#27272a",
+  "mBackground": "#09090b",
+  "mOnBackground": "#fafafa"
+}

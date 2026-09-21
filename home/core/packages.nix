@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+   
     # Dev & Tools
     nodejs_22
     pnpm
@@ -20,12 +21,20 @@
     fastfetch
     lazygit
     nautilus
+    
+    # Modern CLI Utilities
+    fzf
+    eza
+    bat
+
     # System Utilities & Monitoring
     btop
     brightnessctl
     swaylock-effects
+   
     # Office Suite
     libreoffice-fresh
+   
     # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
     adwaita-icon-theme
     vanilla-dmz

@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  # Kitty Terminal Configuration (UI, Glass Blur, and Clipboard)
+  # Kitty Terminal Configuration (Liquid Glass Optics & Wayland Integration)
   programs.kitty = {
     enable = true;
     settings = {
@@ -11,22 +11,22 @@
       bold_font = "auto";
       italic_font = "auto";
 
-      # Window geometry and blur
-      background_opacity = "0.85";
-      window_padding_width = "14";
+      # Liquid Glass Opacity & Geometry
+      background_opacity = "0.72";
+      window_padding_width = "16";
       confirm_os_window_close = 0;
 
-      # Native Wayland suppression
+      # Native Wayland Titlebar Suppression
       hide_window_decorations = "yes";
       linux_display_server = "wayland";
       wayland_titlebar_color = "background";
 
-      # Wayland clipboard synchronization
+      # Wayland Clipboard Synchronization & Auto-copy on Selection
       copy_on_select = "clipboard";
       strip_trailing_spaces = "smart";
       clipboard_control = "write-clipboard write-primary read-clipboard read-primary";
 
-      # Color Scheme (shadcn Dark Zinc)
+      # Color Scheme (Pure Dark Zinc / Monochrome Liquid Glass Spec)
       background = "#09090b";
       foreground = "#fafafa";
       selection_background = "#27272a";
@@ -38,12 +38,17 @@
       color12 = "#60a5fa"; color13 = "#c084fc"; color14 = "#22d3ee"; color15 = "#ffffff";
     };
 
-    # Keybindings for Copy, Cut, and Paste
+    # Keybindings for Intuitive Clipboard Operations
     keybindings = {
       "ctrl+shift+c" = "copy_to_clipboard";
       "ctrl+shift+v" = "paste_from_clipboard";
       "ctrl+c"       = "copy_and_clear_or_interrupt";
       "ctrl+v"       = "paste_from_clipboard";
     };
+
+    # Direct Mouse Paste Mapping
+    extraConfig = ''
+      mouse_map right press ungrabbed paste_from_clipboard
+    '';
   };
 }
