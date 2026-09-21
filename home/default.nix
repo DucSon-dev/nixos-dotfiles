@@ -40,9 +40,12 @@
     ./core/packages.nix
     ./core/fonts.nix
     ./desktop/niri.nix
+    ./desktop/hyprlock.nix
     ./programs/kitty.nix
     ./programs/fuzzel.nix
     ./programs/noctalia
+    ./programs/fastfetch.nix
+    ./programs/zsh.nix
   ];
 
   programs.home-manager.enable = true;

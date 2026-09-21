@@ -3,8 +3,9 @@
 // ==============================================================================
 
 // 1. Startup Services
-spawn-at-startup "swaybg" "-c" "09090b"
+// spawn-at-startup "swaybg" "-c" "09090b"
 spawn-at-startup "noctalia-shell"
+spawn-at-startup "fcitx5" "-d"
 
 // 2. Hardware & Input
 include "input.kdl"

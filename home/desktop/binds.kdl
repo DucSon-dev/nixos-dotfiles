@@ -4,11 +4,12 @@ binds {
     // ==========================================
     Mod+T { spawn "kitty"; }            // [T]erminal
     Mod+B { spawn "brave"; }          // [B]rowser
+    Mod+E { spawn "nautilus"; }         // [E]xplorer / File Manager
     Mod+D { spawn "fuzzel"; }           // [D]rawer / App Launcher
     Mod+Return { spawn "kitty"; }       // Standard fallback for Terminal
     Mod+Slash { spawn "bash" "/home/ducson/.config/noctalia/scripts/cheatsheet.sh"; } // [?] Cheat Sheet
     Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; }
-   
+    Mod+O { spawn "libreoffice"; }
    
 
     // ==========================================
@@ -67,8 +68,24 @@ binds {
     Mod+Shift+3 { move-window-to-workspace 3; }
     Mod+Shift+4 { move-window-to-workspace 4; }
 
-    // ==========================================
-    // 7. SYSTEM & POWER
-    // ==========================================
-    Mod+Shift+E { quit; }                   // [E]xit session
+   // ==========================================
+   // 7. SYSTEM & POWER CONTROLS
+   // ==========================================
+   Mod+Shift+E     { quit; }                                      // [E]xit compositor session
+   Mod+Alt+L { spawn "hyprlock"; }
+   Mod+Alt+S       { spawn "systemctl" "suspend"; }              // [S]leep / Suspend system
+   Mod+Alt+P       { spawn "systemctl" "poweroff"; }             // [P]ower off machine
+   Mod+Alt+R       { spawn "systemctl" "reboot"; }               // [R]eboot machine
+   Mod+Shift+O     { power-off-monitors; }                       // Turn [O]ff display signals
+   Mod+Escape      { spawn "kitty" "-e" "btop"; }                // Task manager / System monitor
+
+   // ==========================================
+   // 8. HARDWARE MEDIA CONTROLS (AUDIO & BRIGHTNESS)
+   // ==========================================
+   XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+   XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+   XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+   XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "+5%"; }
+   XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
+
 }

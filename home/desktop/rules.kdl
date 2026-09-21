@@ -1,10 +1,24 @@
+// ==============================================================================
+// NIRI WINDOW RULES & LIQUID GLASS COMPOSITING SPECIFICATION
+// ==============================================================================
+
+// 1. Global Window Geometry & Glass Boundary Rules
+window-rule {
+    geometry-corner-radius 16
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+// 2. Global Layout Gaps and Refractive Focus Ring
 layout {
     gaps 14
     border {
         off
     }
     focus-ring {
-        off
+        width 2
+        active-color "#ffffff2e"
+        inactive-color "#ffffff0a"
     }
     struts {
         left 8
@@ -14,13 +28,7 @@ layout {
     }
 }
 
-// Global window rules and floating layout overrides
-window-rule {
-    geometry-corner-radius 16
-    clip-to-geometry true
-    draw-border-with-background false
-}
-
+// 3. Floating Overlay Overrides for LazyGit Shell
 window-rule {
     match app-id="^git-tree-float$"
     open-floating true
