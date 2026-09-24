@@ -41,9 +41,15 @@
       bindkey '^ ' autosuggest-accept
       bindkey '^E' autosuggest-accept
 
-      # Auto-run fastfetch on interactive shell launch
+     # Responsive Fastfetch Auto-Breakpoint Hook (Dynamic Grid Layout)
       if [[ -z "$SSH_CONNECTION" && $- == *i* ]]; then
-        fastfetch
+        if (( COLUMNS < 75 )); then
+          # Narrow window or split pane: display system telemetry without image logo
+          fastfetch --logo none
+        else
+          # Standard window (>= 75 cols): render full golden ratio wireframe logo
+          fastfetch
+        fi
       fi
     '';
   };

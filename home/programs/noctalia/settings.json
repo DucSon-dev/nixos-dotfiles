@@ -73,7 +73,7 @@
     "showOnWorkspaceSwitch": true,
     "showOutline": true,
     "useSeparateOpacity": false,
-    "widgetSpacing": 6,
+    "widgetSpacing": 8,
     "widgets": {
       "left": [
         {
@@ -83,7 +83,7 @@
         },
         {
           "id": "ActiveWindow",
-          "maxWidth": 180,
+          "maxWidth": 200,
           "showIcon": true,
           "showText": true,
           "hideMode": "hidden"
@@ -98,16 +98,9 @@
           "id": "Workspace",
           "hideUnoccupied": false,
           "showBadge": true
-        },
-        {
-          "id": "Clock",
-          "formatHorizontal": "HH:mm  ·  ddd, MMM dd"
         }
       ],
       "right": [
-        {
-          "id": "KeyboardLayout"
-        },
         {
           "id": "SystemMonitor",
           "compactMode": true,
@@ -120,15 +113,12 @@
           "displayMode": "onhover"
         },
         {
-          "id": "Brightness",
-          "displayMode": "onhover"
-        },
-        {
           "id": "Battery",
           "displayMode": "graphic-clean"
         },
         {
-          "id": "NotificationHistory"
+          "id": "Clock",
+          "formatHorizontal": "HH:mm · ddd, MMM dd"
         },
         {
           "id": "ControlCenter",
@@ -151,13 +141,25 @@
     "fontDefaultScale": 1.0,
     "fontFixed": "GeistMono Nerd Font",
     "fontFixedScale": 1.0,
-    "panelBackgroundOpacity": 0.65,
+    "panelBackgroundOpacity": 0.68,
     "panelsAttachedToBar": true,
     "scrollbarAlwaysVisible": false,
     "settingsPanelMode": "attached",
     "settingsPanelSideBarCardStyle": true,
     "tooltipsEnabled": true,
     "translucentWidgets": true
+  },
+  "location": {
+    "analogClockInCalendar": false,
+    "autoLocate": false,
+    "hideWeatherCityName": true,
+    "name": "Hanoi",
+    "showCalendarEvents": true,
+    "showCalendarWeather": false,
+    "use12hourFormat": false,
+    "weatherEnabled": false,
+    "weatherShowEffects": false,
+    "weatherTaliaMascotAlways": false
   },
   "wallpaper": {
     "automationEnabled": true,

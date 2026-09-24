@@ -1,91 +1,98 @@
 binds {
     // ==========================================
-    // 1. APPLICATION LAUNCHERS (MNEMONIC)
+    // 1. APPLICATION LAUNCHERS
     // ==========================================
-    Mod+T { spawn "kitty"; }            // [T]erminal
-    Mod+B { spawn "brave"; }          // [B]rowser
-    Mod+E { spawn "nautilus"; }         // [E]xplorer / File Manager
-    Mod+D { spawn "fuzzel"; }           // [D]rawer / App Launcher
-    Mod+Return { spawn "kitty"; }       // Standard fallback for Terminal
-    Mod+Slash { spawn "bash" "/home/ducson/.config/noctalia/scripts/cheatsheet.sh"; } // [?] Cheat Sheet
-    Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; }
-    Mod+O { spawn "libreoffice"; }
-    Mod+P { spawn "keepassxc"; }  // Launch KeePassXC Password Manager
+    Mod+T { spawn "kitty"; }                                                           // Terminal (Kitty)
+    Mod+B { spawn "brave"; }                                                           // Web Browser (Brave)
+    Mod+E { spawn "nautilus"; }                                                        // File Manager (Nautilus)
+    Mod+D { spawn "fuzzel"; }                                                          // Application Drawer
+    Mod+Return { spawn "kitty"; }                                                      // Terminal (Fallback)
+    Mod+Slash { spawn "bash" "/home/ducson/.config/noctalia/scripts/cheatsheet.sh"; }  // Toggle Cheat Sheet
+    Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; } // Git Client (Lazygit)
+    Mod+O { spawn "libreoffice"; }                                                     // Office Suite (LibreOffice)
+    Mod+P { spawn "keepassxc"; }                                                       // Password Manager (KeePassXC)
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE
     // ==========================================
-    Mod+Q { close-window; }                 // [Q]uit window
-    Mod+F { maximize-column; }              // [F]it/Maximize column
-    Mod+Shift+F { fullscreen-window; }      // True [F]ullscreen
-    Mod+C { center-column; }                // [C]enter focused column
-    Mod+Space { toggle-overview; }          // Space Overview mode
+    Mod+Q { close-window; }                 // Close Focused Window
+    Mod+F { maximize-column; }              // Maximize Column
+    Mod+Shift+F { fullscreen-window; }      // Toggle Fullscreen Window
+    Mod+C { center-column; }                // Center Focused Column
+    Mod+Space { toggle-overview; }          // Toggle Overview Mode
 
     // ==========================================
-    // 3. UTILITIES & SCREENSHOT
+    // 3. WINDOW & COLUMN SIZING
     // ==========================================
-    Mod+S { screenshot; }                   // [S]creenshot interactive UI
-    Mod+Shift+S { screenshot-screen; }      // [S]creenshot full screen
-    Print { screenshot; }
-
-    // ==========================================
-    // 4. NAVIGATION (ARROWS & VIM HJKL)
-    // ==========================================
-    Mod+Left  { focus-column-left; }
-    Mod+Right { focus-column-right; }
-    Mod+Up    { focus-window-up; }
-    Mod+Down  { focus-window-down; }
-
-    Mod+H     { focus-column-left; }
-    Mod+L     { focus-column-right; }
-    Mod+K     { focus-window-up; }
-    Mod+J     { focus-window-down; }
-
-    // Multi-monitor navigation
-    Mod+Shift+Left  { focus-monitor-left; }
-    Mod+Shift+Right { focus-monitor-right; }
-    Mod+Ctrl+Left   { move-column-to-monitor-left; }
-    Mod+Ctrl+Right  { move-column-to-monitor-right; }
+    Mod+Ctrl+Up    { maximize-column; }             // Maximize Active Column
+    Mod+Ctrl+Down  { reset-window-height; }         // Reset Window Height
+    Mod+R          { switch-preset-column-width; }  // Cycle Column Width Presets
+    Mod+Ctrl+Left  { set-column-width "-10%"; }     // Shrink Column Width 10%
+    Mod+Ctrl+Right { set-column-width "+10%"; }     // Expand Column Width 10%
 
     // ==========================================
-    // 5. MOVING & REORDERING COLUMNS
+    // 4. UTILITIES & SCREENSHOT
     // ==========================================
-    Mod+Shift+H     { move-column-left; }
-    Mod+Shift+L     { move-column-right; }
-    Mod+Shift+K     { move-window-up; }
-    Mod+Shift+J     { move-window-down; }
+    Mod+S { screenshot; }                   // Interactive Screenshot Area
+    Mod+Shift+S { screenshot-screen; }      // Fullscreen Screenshot
+    Print { screenshot; }                   // Screenshot Active Screen
 
     // ==========================================
-    // 6. WORKSPACES (1 - 9)
+    // 5. NAVIGATION (ARROWS & VIM HJKL)
     // ==========================================
-    Mod+1 { focus-workspace 1; }
-    Mod+2 { focus-workspace 2; }
-    Mod+3 { focus-workspace 3; }
-    Mod+4 { focus-workspace 4; }
+    Mod+Left  { focus-column-left; }        // Focus Column Left
+    Mod+Right { focus-column-right; }       // Focus Column Right
+    Mod+Up    { focus-window-up; }          // Focus Window Up
+    Mod+Down  { focus-window-down; }        // Focus Window Down
 
-    Mod+Shift+1 { move-window-to-workspace 1; }
-    Mod+Shift+2 { move-window-to-workspace 2; }
-    Mod+Shift+3 { move-window-to-workspace 3; }
-    Mod+Shift+4 { move-window-to-workspace 4; }
+    Mod+H     { focus-column-left; }        // Focus Left (Vim)
+    Mod+L     { focus-column-right; }       // Focus Right (Vim)
+    Mod+K     { focus-window-up; }          // Focus Up (Vim)
+    Mod+J     { focus-window-down; }        // Focus Down (Vim)
 
-   // ==========================================
-   // 7. SYSTEM & POWER CONTROLS
-   // ==========================================
-   Mod+Shift+E     { quit; }                                      // [E]xit compositor session
-   Mod+Alt+L { spawn "hyprlock"; }
-   Mod+Alt+S       { spawn "systemctl" "suspend"; }              // [S]leep / Suspend system
-   Mod+Alt+P       { spawn "systemctl" "poweroff"; }             // [P]ower off machine
-   Mod+Alt+R       { spawn "systemctl" "reboot"; }               // [R]eboot machine
-   Mod+Shift+O     { power-off-monitors; }                       // Turn [O]ff display signals
-   Mod+Escape      { spawn "kitty" "-e" "btop"; }                // Task manager / System monitor
+    Mod+Shift+Left  { focus-monitor-left; }             // Focus Monitor Left
+    Mod+Shift+Right { focus-monitor-right; }            // Focus Monitor Right
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }  // Move Column to Left Monitor
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; } // Move Column to Right Monitor
 
-   // ==========================================
-   // 8. HARDWARE MEDIA CONTROLS (AUDIO & BRIGHTNESS)
-   // ==========================================
-   XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
-   XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
-   XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-   XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "+5%"; }
-   XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
+    // ==========================================
+    // 6. MOVING & REORDERING COLUMNS
+    // ==========================================
+    Mod+Shift+H     { move-column-left; }   // Move Column Left
+    Mod+Shift+L     { move-column-right; }  // Move Column Right
+    Mod+Shift+K     { move-window-up; }     // Move Window Up
+    Mod+Shift+J     { move-window-down; }   // Move Window Down
 
+    // ==========================================
+    // 7. WORKSPACES (1 - 4)
+    // ==========================================
+    Mod+1 { focus-workspace 1; }            // Switch to Workspace 1
+    Mod+2 { focus-workspace 2; }            // Switch to Workspace 2
+    Mod+3 { focus-workspace 3; }            // Switch to Workspace 3
+    Mod+4 { focus-workspace 4; }            // Switch to Workspace 4
+
+    Mod+Shift+1 { move-window-to-workspace 1; } // Send Window to Workspace 1
+    Mod+Shift+2 { move-window-to-workspace 2; } // Send Window to Workspace 2
+    Mod+Shift+3 { move-window-to-workspace 3; } // Send Window to Workspace 3
+    Mod+Shift+4 { move-window-to-workspace 4; } // Send Window to Workspace 4
+
+    // ==========================================
+    // 8. SYSTEM & POWER CONTROLS
+    // ==========================================
+    Mod+Shift+E   { quit; }                 // Exit Compositor Session
+    Mod+Alt+L     { spawn "hyprlock"; }     // Lock Screen Session
+    Mod+Alt+S     { spawn "systemctl" "suspend"; }  // Suspend System
+    Mod+Alt+P     { spawn "systemctl" "poweroff"; } // Power Off System
+    Mod+Alt+R     { spawn "systemctl" "reboot"; }   // Reboot System
+    Mod+Shift+O   { power-off-monitors; }   // Turn Off Displays
+    Mod+Escape    { spawn "kitty" "-e" "btop"; }    // Task Manager (btop)
+
+    // ==========================================
+    // 9. HARDWARE MEDIA CONTROLS
+    // ==========================================
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "+5%"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
 }
