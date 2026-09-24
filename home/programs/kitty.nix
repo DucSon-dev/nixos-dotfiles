@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  # Kitty Terminal Configuration (Liquid Glass Optics & Wayland Integration)
+  # Kitty Terminal Configuration (Liquid Glass Optics & shadcn Dark Zinc Spec)
   programs.kitty = {
     enable = true;
     settings = {
@@ -11,8 +11,8 @@
       bold_font = "auto";
       italic_font = "auto";
 
-      # Ninja Slash & Smooth Cursor Motion
-      cursor = "#3b82f6";
+      # Ninja Slash & Smooth Motion (Pure Monochrome)
+      cursor = "#fafafa";
       cursor_text_color = "#09090b";
       cursor_shape = "block";
       cursor_blink_interval = "0";
@@ -35,7 +35,7 @@
       strip_trailing_spaces = "smart";
       clipboard_control = "write-clipboard write-primary read-clipboard read-primary";
 
-      # Color Scheme (Pure Dark Zinc / Monochrome Liquid Glass Spec)
+      # Color Scheme (Pure Dark Zinc Monochrome)
       background = "#09090b";
       foreground = "#fafafa";
       selection_background = "#27272a";

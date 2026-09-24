@@ -46,6 +46,7 @@
     ./programs/noctalia
     ./programs/fastfetch.nix
     ./programs/zsh.nix
+    ./programs/starship.nix
   ];
 
   programs.home-manager.enable = true;
