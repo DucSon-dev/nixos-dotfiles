@@ -1,17 +1,21 @@
 { pkgs, ... }:
 
 {
+  # Smart Zsh Configuration with Minimal Glass Prompt & Fast Completion
   programs.zsh = {
     enable = true;
     enableCompletion = true;
 
+    # Fish-like autosuggestions matching shadcn zinc palette
     autosuggestion = {
       enable = true;
       highlight = "fg=#71717a";
     };
 
+    # Syntax highlighting (clean contrast)
     syntaxHighlighting.enable = true;
 
+    # History retention rules
     history = {
       size = 10000;
       save = 10000;
