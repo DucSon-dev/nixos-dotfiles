@@ -10,7 +10,7 @@ binds {
     Mod+Slash { spawn "bash" "/home/ducson/.config/noctalia/scripts/cheatsheet.sh"; } // [?] Cheat Sheet
     Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; }
     Mod+O { spawn "libreoffice"; }
-   
+    Mod+P { spawn "keepassxc"; }  // Launch KeePassXC Password Manager
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE

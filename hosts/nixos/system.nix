@@ -8,6 +8,19 @@
   networking.networkmanager.enable = true;
   time.timeZone = "Asia/Ho_Chi_Minh";
 
+  # Silent Boot: Clean console without breaking DRM framebuffer
+  boot.consoleLogLevel = 3;
+  boot.initrd.verbose = false;
+  boot.kernelParams = [
+    "quiet"
+    "boot.shell_on_fail"
+    "loglevel=3"
+    "rd.systemd.show_status=false"
+    "rd.udev.log_level=3"
+    "udev.log_priority=3"
+    "systemd.show_status=auto"
+  ];
+
   # 2. PAM Configuration for Screen Locking
   security.pam.services.hyprlock = {};
   security.pam.services.login = {};

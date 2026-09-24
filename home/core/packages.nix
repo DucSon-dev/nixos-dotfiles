@@ -31,6 +31,9 @@
     btop
     brightnessctl
     swaylock-effects
+
+   # Password Manager & Security
+    keepassxc
    
     # Office Suite
     libreoffice-fresh
