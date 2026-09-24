@@ -11,6 +11,15 @@
       bold_font = "auto";
       italic_font = "auto";
 
+      # Ninja Slash & Smooth Cursor Motion
+      cursor = "#3b82f6";
+      cursor_text_color = "#09090b";
+      cursor_shape = "block";
+      cursor_blink_interval = "0";
+      cursor_trail = "1";
+      cursor_trail_decay = "0.1 0.35";
+      cursor_trail_start_threshold = "2";
+
       # Liquid Glass Opacity & Geometry
       background_opacity = "0.72";
       window_padding_width = "16";
