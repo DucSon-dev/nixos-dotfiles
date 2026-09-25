@@ -1,7 +1,6 @@
 { pkgs, ... }:
 
 {
-  # Kitty Terminal Configuration (Liquid Glass Optics & shadcn Dark Zinc Spec)
   programs.kitty = {
     enable = true;
     settings = {
@@ -11,7 +10,7 @@
       bold_font = "auto";
       italic_font = "auto";
 
-      # Ninja Slash & Smooth Motion (Pure Monochrome)
+      # Ninja Slash & Smooth Motion
       cursor = "#fafafa";
       cursor_text_color = "#09090b";
       cursor_shape = "block";
@@ -20,25 +19,25 @@
       cursor_trail_decay = "0.1 0.35";
       cursor_trail_start_threshold = "2";
 
-      # Scrollback Buffer (Store up to 20,000 lines for easy copying)
+      # Scrollback Buffer (Lưu tới 20,000 dòng log)
       scrollback_lines = 20000;
 
-      # Liquid Glass Opacity & Geometry
+      # Liquid Glass & Styling
       background_opacity = "0.72";
       window_padding_width = "16";
       confirm_os_window_close = 0;
 
-      # Native Wayland Titlebar Suppression
+      # Native Wayland Decorations Suppression
       hide_window_decorations = "yes";
       linux_display_server = "wayland";
       wayland_titlebar_color = "background";
 
-      # Wayland Clipboard Synchronization & Auto-copy on Selection
+      # Clipboard Handling
       copy_on_select = "clipboard";
       strip_trailing_spaces = "smart";
       clipboard_control = "write-clipboard write-primary read-clipboard read-primary";
 
-      # Color Scheme (Pure Dark Zinc Monochrome)
+      # Color Scheme (shadcn Dark Zinc)
       background = "#09090b";
       foreground = "#fafafa";
       selection_background = "#27272a";
@@ -50,24 +49,21 @@
       color12 = "#60a5fa"; color13 = "#c084fc"; color14 = "#22d3ee"; color15 = "#ffffff";
     };
 
-    # Keybindings for Intuitive Clipboard & Scrollback Operations
+    # Keybindings chuẩn xác
     keybindings = {
       "ctrl+shift+c" = "copy_to_clipboard";
       "ctrl+shift+v" = "paste_from_clipboard";
       "ctrl+c"       = "copy_and_clear_or_interrupt";
       "ctrl+v"       = "paste_from_clipboard";
-
-      # Quick Copy Entire Screen / Scrollback without mouse dragging
-      "ctrl+shift+a" = "copy_to_clipboard";
       "ctrl+shift+h" = "show_scrollback";
     };
 
-    # Map mouse right-click to paste directly & map pipe action
     extraConfig = ''
+      # Click chuột phải để Paste trực tiếp
       mouse_map right press ungrabbed paste_from_clipboard
 
-      # Pipe entire screen scrollback directly to wl-copy via Ctrl+Shift+A
-      map ctrl+shift+a pipe @ansi overlay wl-copy
+      # Dump trực tiếp toàn bộ màn hình và scrollback vào wl-copy mà không bung overlay
+      map ctrl+shift+a launch --type=background --stdin-source=@screen_scrollback wl-copy
     '';
   };
 }
