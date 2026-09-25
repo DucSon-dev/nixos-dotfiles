@@ -92,16 +92,12 @@
       "right": [
         {
           "id": "CustomButton",
-          "icon": "cpu",
+          "icon": "git-branch",
           "showIcon": true,
           "textCommand": "",
-          "generalTooltipText": "System Topology",
+          "generalTooltipText": "System Architecture & Topology",
           "showExecTooltip": false,
           "leftClickExec": "bash -c 'nohup /home/ducson/.config/noctalia/scripts/system-tree.sh >/dev/null 2>&1 &'"
-        },
-        {
-          "id": "Clock",
-          "formatHorizontal": "HH:mm  ·  ddd, MMM dd"
         },
         {
           "id": "SystemMonitor",
@@ -113,6 +109,10 @@
         {
           "id": "Volume",
           "displayMode": "onhover"
+        },
+        {
+          "id": "Clock",
+          "formatHorizontal": "HH:mm  ·  ddd, MMM dd"
         },
         {
           "id": "ControlCenter",
