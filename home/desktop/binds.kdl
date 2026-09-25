@@ -7,7 +7,7 @@ binds {
     Mod+E { spawn "nautilus"; }                                                        // File Manager (Nautilus)
     Mod+D { spawn "fuzzel"; }                                                          // Application Drawer
     Mod+Return { spawn "kitty"; }                                                      // Terminal (Fallback)
-    Mod+Slash { spawn "bash" "$HOME/.config/noctalia/scripts/cheatsheet.sh"; }  // Toggle Cheat Sheet
+    Mod+Slash { spawn "bash" "/home/ducson/.config/noctalia/scripts/cheatsheet.sh"; }  // Toggle Cheat Sheet
     Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; } // Git Client (Lazygit)
     Mod+O { spawn "libreoffice"; }                                                     // Office Suite (LibreOffice)
     Mod+P { spawn "keepassxc"; }                                                       // Password Manager (KeePassXC)
