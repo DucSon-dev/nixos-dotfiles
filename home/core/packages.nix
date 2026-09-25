@@ -26,7 +26,11 @@
     fzf
     eza
     bat
-
+    
+    # Code Editors (Dual Setup)
+    
+    vscodium
+   
     # System Utilities & Monitoring
     btop
     brightnessctl

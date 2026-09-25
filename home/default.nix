@@ -47,6 +47,7 @@
     ./programs/fastfetch.nix
     ./programs/zsh.nix
     ./programs/starship.nix
+    ./programs/neovim.nix
   ];
 
   programs.home-manager.enable = true;
