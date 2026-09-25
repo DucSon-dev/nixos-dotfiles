@@ -3,10 +3,10 @@
     "allowPanelsOnScreenWithoutBar": true,
     "allowPasswordWithFprintd": false,
     "animationDisabled": false,
-    "animationSpeed": 1.2,
+    "animationSpeed": 1.1,
     "autoStartAuth": true,
     "avatarImage": "/home/ducson/.face",
-    "boxRadiusRatio": 1.4,
+    "boxRadiusRatio": 1.2,
     "clockFormat": "HH:mm",
     "clockStyle": "minimal",
     "compactLockScreen": true,
@@ -16,7 +16,7 @@
     "enableLockScreenMediaControls": false,
     "enableShadows": true,
     "forceBlackScreenCorners": false,
-    "iRadiusRatio": 1.2,
+    "iRadiusRatio": 1.1,
     "lockOnSuspend": true,
     "lockScreenAnimations": false,
     "lockScreenBlur": 24,
@@ -24,7 +24,7 @@
     "lockScreenMonitors": [],
     "lockScreenTint": 0.0,
     "passwordChars": true,
-    "radiusRatio": 1.6,
+    "radiusRatio": 1.2,
     "reverseScroll": false,
     "scaleRatio": 1,
     "screenRadiusRatio": 1,
@@ -48,16 +48,16 @@
   "bar": {
     "autoHideDelay": 500,
     "autoShowDelay": 150,
-    "backgroundOpacity": 0.65,
+    "backgroundOpacity": 0.78,
     "barType": "floating",
     "capsuleColorKey": "none",
-    "capsuleOpacity": 0.75,
+    "capsuleOpacity": 0.88,
     "contentPadding": 3,
     "density": "compact",
     "displayMode": "always_visible",
     "enableExclusionZoneInset": true,
     "fontScale": 1,
-    "frameRadius": 18,
+    "frameRadius": 16,
     "frameThickness": 6,
     "hideOnOverview": false,
     "marginHorizontal": 12,
@@ -80,17 +80,6 @@
           "id": "Launcher",
           "icon": "rocket",
           "enableColorization": false
-        },
-        {
-          "id": "ActiveWindow",
-          "maxWidth": 200,
-          "showIcon": true,
-          "showText": true,
-          "hideMode": "hidden"
-        },
-        {
-          "id": "MediaMini",
-          "showAlbumArt": true
         }
       ],
       "center": [
@@ -102,23 +91,28 @@
       ],
       "right": [
         {
+          "id": "CustomButton",
+          "icon": "cpu",
+          "showIcon": true,
+          "textCommand": "",
+          "generalTooltipText": "System Topology",
+          "showExecTooltip": false,
+          "leftClickExec": "bash -c 'nohup /home/ducson/.config/noctalia/scripts/system-tree.sh >/dev/null 2>&1 &'"
+        },
+        {
+          "id": "Clock",
+          "formatHorizontal": "HH:mm  ·  ddd, MMM dd"
+        },
+        {
           "id": "SystemMonitor",
           "compactMode": true,
           "showCpuUsage": true,
-          "showMemoryUsage": true,
+          "showMemoryUsage": false,
           "showCpuTemp": false
         },
         {
           "id": "Volume",
           "displayMode": "onhover"
-        },
-        {
-          "id": "Battery",
-          "displayMode": "graphic-clean"
-        },
-        {
-          "id": "Clock",
-          "formatHorizontal": "HH:mm · ddd, MMM dd"
         },
         {
           "id": "ControlCenter",
@@ -141,45 +135,12 @@
     "fontDefaultScale": 1.0,
     "fontFixed": "GeistMono Nerd Font",
     "fontFixedScale": 1.0,
-    "panelBackgroundOpacity": 0.68,
+    "panelBackgroundOpacity": 0.85,
     "panelsAttachedToBar": true,
     "scrollbarAlwaysVisible": false,
     "settingsPanelMode": "attached",
     "settingsPanelSideBarCardStyle": true,
     "tooltipsEnabled": true,
     "translucentWidgets": true
-  },
-  "location": {
-    "analogClockInCalendar": false,
-    "autoLocate": false,
-    "hideWeatherCityName": true,
-    "name": "Hanoi",
-    "showCalendarEvents": true,
-    "showCalendarWeather": false,
-    "use12hourFormat": false,
-    "weatherEnabled": false,
-    "weatherShowEffects": false,
-    "weatherTaliaMascotAlways": false
-  },
-  "wallpaper": {
-    "automationEnabled": true,
-    "directory": "/home/ducson/Pictures/Wallpapers/monochrome-topo",
-    "enabled": true,
-    "fillColor": "#000000",
-    "fillMode": "crop",
-    "hideWallpaperFilenames": true,
-    "overviewBlur": 0.0,
-    "overviewEnabled": false,
-    "overviewTint": 0.0,
-    "randomIntervalSec": 600,
-    "setWallpaperOnAllMonitors": true,
-    "showHiddenFiles": false,
-    "skipStartupTransition": false,
-    "transitionDuration": 800,
-    "transitionEdgeSmoothness": 0.05,
-    "transitionType": [
-      "fade"
-    ],
-    "wallpaperChangeMode": "random"
   }
 }
