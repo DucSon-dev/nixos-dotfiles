@@ -4,7 +4,7 @@ set -eo pipefail
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/1000}"
 
-# Toggle: Close fuzzel if already active
+# Toggle: Close fuzzel if already open
 if pidof fuzzel >/dev/null 2>&1; then
   pkill -9 fuzzel
   exit 0
@@ -23,7 +23,7 @@ else
   CPU_INFO="x86_64 Processor"
 fi
 
-GPU_INFO="$(lspci 2>/dev/null | grep -E -i 'vga|3d|display' | awk -F': ' '{print $2}' | head -n1 | sed -E 's/^[[:space:]]+//' || echo 'Intel Graphics')"
+GPU_INFO="$(lspci 2>/dev/null | grep -E -i 'vga|3d|display' | awk -F': ' '{print $2}' | head -n1 | sed -E 's/^[[:space:]]+//' || echo 'Intel UHD Graphics')"
 MEM_INFO="$(free -h 2>/dev/null | awk '/^Mem:/ {print $3 " / " $2}' || echo 'N/A')"
 DISK_USAGE="$(df -h / 2>/dev/null | awk 'NR==2 {print $3 " / " $2 " (" $5 ")"}')"
 
@@ -51,7 +51,7 @@ TOPOLOGY
 
 echo -e "$TOPOLOGY_REPORT" | fuzzel \
   --dmenu \
-  --prompt="󱗼 Topology [${CURRENT_USER}@${CURRENT_HOST}] › " \
+  --prompt="󱗼  Topology [${CURRENT_USER}@${CURRENT_HOST}] › " \
   --font="GeistMono Nerd Font:size=11" \
   --width=66 \
   --lines=18 \
@@ -60,6 +60,10 @@ echo -e "$TOPOLOGY_REPORT" | fuzzel \
   --inner-pad=10 \
   --background-color=09090bee \
   --text-color=fafafaff \
+  --prompt-color=fafafaff \
+  --placeholder-color=71717aff \
+  --selection-color=27272ae6 \
+  --selection-text-color=ffffffff \
   --border-color=ffffff24 \
   --border-width=1 \
   --border-radius=18

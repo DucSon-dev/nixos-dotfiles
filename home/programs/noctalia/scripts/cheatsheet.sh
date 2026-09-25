@@ -4,7 +4,6 @@ set -eo pipefail
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/1000}"
 
-# Toggle: Close fuzzel if already visible
 if pidof fuzzel >/dev/null 2>&1; then
   pkill -9 fuzzel
   exit 0
@@ -17,9 +16,7 @@ elif [[ -f "/etc/nixos/home/desktop/niri.kdl" ]]; then
   BINDS_FILE="/etc/nixos/home/desktop/niri.kdl"
 fi
 
-if [[ -z "$BINDS_FILE" ]]; then
-  exit 1
-fi
+[[ -z "$BINDS_FILE" ]] && exit 1
 
 declare -A ACTIONS
 RAW_MENU=""
@@ -27,7 +24,6 @@ RAW_MENU=""
 while IFS= read -r line || [[ -n "$line" ]]; do
   trimmed=$(echo "$line" | sed -E 's/^[[:space:]]+//')
   
-  # Only match active keybind entries
   if [[ ! "$trimmed" =~ ^(Mod\+|Print) ]]; then
     continue
   fi
@@ -58,7 +54,7 @@ done < "$BINDS_FILE"
 
 SELECTED=$(printf "%s" "$RAW_MENU" | fuzzel \
   --dmenu \
-  --prompt="⌨ Hotkeys › " \
+  --prompt="⌨  Hotkeys › " \
   --font="GeistMono Nerd Font:size=11" \
   --width=58 \
   --lines=16 \
@@ -68,6 +64,7 @@ SELECTED=$(printf "%s" "$RAW_MENU" | fuzzel \
   --line-height=26 \
   --background-color=09090bee \
   --text-color=fafafaff \
+  --prompt-color=fafafaff \
   --match-color=60a5faff \
   --selection-color=27272ae6 \
   --selection-text-color=ffffffff \
