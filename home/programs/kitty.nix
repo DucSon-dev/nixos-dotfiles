@@ -20,6 +20,9 @@
       cursor_trail_decay = "0.1 0.35";
       cursor_trail_start_threshold = "2";
 
+      # Scrollback Buffer (Store up to 20,000 lines for easy copying)
+      scrollback_lines = 20000;
+
       # Liquid Glass Opacity & Geometry
       background_opacity = "0.72";
       window_padding_width = "16";
@@ -47,17 +50,24 @@
       color12 = "#60a5fa"; color13 = "#c084fc"; color14 = "#22d3ee"; color15 = "#ffffff";
     };
 
-    # Keybindings for Intuitive Clipboard Operations
+    # Keybindings for Intuitive Clipboard & Scrollback Operations
     keybindings = {
       "ctrl+shift+c" = "copy_to_clipboard";
       "ctrl+shift+v" = "paste_from_clipboard";
       "ctrl+c"       = "copy_and_clear_or_interrupt";
       "ctrl+v"       = "paste_from_clipboard";
+
+      # Quick Copy Entire Screen / Scrollback without mouse dragging
+      "ctrl+shift+a" = "copy_to_clipboard";
+      "ctrl+shift+h" = "show_scrollback";
     };
 
-    # Direct Mouse Paste Mapping
+    # Map mouse right-click to paste directly & map pipe action
     extraConfig = ''
       mouse_map right press ungrabbed paste_from_clipboard
+
+      # Pipe entire screen scrollback directly to wl-copy via Ctrl+Shift+A
+      map ctrl+shift+a pipe @ansi overlay wl-copy
     '';
   };
 }
