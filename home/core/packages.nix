@@ -22,6 +22,11 @@
     lazygit
     nautilus
     
+
+    # Media & Audio
+    amberol
+    playerctl
+
     # Modern CLI Utilities
     fzf
     eza

@@ -11,6 +11,9 @@ binds {
     Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; } // Git Client (Lazygit)
     Mod+O { spawn "libreoffice"; }                                                     // Office Suite (LibreOffice)
     Mod+P { spawn "keepassxc"; }                                                       // Password Manager (KeePassXC)
+    Mod+M { spawn "amberol"; }                                                         // Music Player (Amberol)
+    Mod+Shift+M { spawn "bash" "/home/ducson/.config/noctalia/scripts/music-fetch.sh"; } // Fetch/Download Song to ~/Music   
+
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE
