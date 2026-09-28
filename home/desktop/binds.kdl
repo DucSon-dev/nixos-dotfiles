@@ -2,6 +2,7 @@ binds {
     // ==========================================
     // 1. APPLICATION LAUNCHERS
     // ==========================================
+    Mod+A { spawn "anki"; }                                                            // Flashcards (Anki)
     Mod+T { spawn "kitty"; }                                                           // Terminal (Kitty)
     Mod+B { spawn "brave"; }                                                           // Web Browser (Brave)
     Mod+E { spawn "nautilus"; }                                                        // File Manager (Nautilus)

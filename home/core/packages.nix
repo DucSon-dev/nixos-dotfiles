@@ -26,6 +26,12 @@
     # Media & Audio
     amberol
     playerctl
+    
+    # Audio Extraction & System Notification Tooling
+    libnotify
+    yt-dlp
+    ffmpeg
+    atomicparsley
 
     # Modern CLI Utilities
     fzf
@@ -40,15 +46,19 @@
     btop
     brightnessctl
     swaylock-effects
-
+   
+   # Productivity & Learning
+    anki
+    
    # Password Manager & Security
     keepassxc
    
     # Office Suite
     libreoffice-fresh
-   
-    # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
-    adwaita-icon-theme
-    vanilla-dmz
+    
+   # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
+   adwaita-icon-theme
+   papirus-icon-theme
+   vanilla-dmz   
   ];
 }

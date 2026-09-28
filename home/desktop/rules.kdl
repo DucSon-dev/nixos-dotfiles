@@ -35,3 +35,29 @@ window-rule {
     match app-id="^io.bassi.Amberol$"
     default-column-width { proportion 0.35; }
 }
+
+// 5. Floating Music Fetcher Dialog
+window-rule {
+    match app-id="^music-fetch-float$"
+    open-floating true
+    default-column-width { proportion 0.40; }
+    default-window-height { proportion 0.25; }
+}
+
+
+// Anki Window Rules
+window-rule {
+    match app-id="^anki$"
+    default-column-width { proportion 0.65; }
+}
+
+// Float dialogs and subwindows in Anki
+window-rule {
+    match app-id="^anki$" title="^Add$"
+    open-floating true
+}
+
+window-rule {
+    match app-id="^anki$" title="^Edit Current$"
+    open-floating true
+}

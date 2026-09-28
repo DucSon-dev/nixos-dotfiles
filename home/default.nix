@@ -11,6 +11,7 @@
     XCURSOR_SIZE = "24";
     BROWSER = "brave";
     DEFAULT_BROWSER = "brave";
+    QT_QPA_PLATFORMTHEME = "gtk3";
   };
 
   # Set Brave as Default Browser for Web Protocols and MIME types
@@ -34,6 +35,33 @@
       name = "Adwaita";
       package = pkgs.adwaita-icon-theme;
     };
+  };
+
+  # FreeDesktop Universal Icon Fallback Chain & Missing Asset Aliases
+  xdg.dataFile = {
+    "icons/default/index.theme".text = ''
+      [Icon Theme]
+      Name=Default
+      Comment=Default Fallback Icon Theme
+      Inherits=Adwaita,Papirus-Dark,Papirus,hicolor
+    '';
+
+    "icons/hicolor/index.theme".text = ''
+      [Icon Theme]
+      Name=Hicolor
+      Comment=Root Fallback Icon Theme
+      Inherits=Adwaita,Papirus-Dark,Papirus
+    '';
+
+    # Map missing 'input-keyboard' asset directly from Adwaita store
+    "icons/hicolor/scalable/apps/input-keyboard.svg".source =
+      "${pkgs.adwaita-icon-theme}/share/icons/Adwaita/scalable/devices/input-keyboard-symbolic.svg";
+
+    # System-wide fallbacks for unknown/broken app or notification icons
+    "icons/hicolor/scalable/apps/image-missing.svg".source =
+      "${pkgs.adwaita-icon-theme}/share/icons/Adwaita/scalable/mimetypes/application-x-generic.svg";
+    "icons/hicolor/scalable/apps/application-default-icon.svg".source =
+      "${pkgs.adwaita-icon-theme}/share/icons/Adwaita/scalable/mimetypes/application-x-generic.svg";
   };
 
   imports = [
