@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "=========================================================="
+echo "    NixOS + Niri + Noctalia Shell Universal Installer     "
+echo "=========================================================="
+
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_HOST="nixos"
+TARGET_USER="${SUDO_USER:-$(whoami)}"
+
+if [[ "$TARGET_USER" == "root" ]]; then
+  read -rp "Enter target non-root username [ducson]: " INPUT_USER
+  TARGET_USER="${INPUT_USER:-ducson}"
+fi
+
+echo -e "\n[1/4] Detecting Hardware Configuration..."
+if [[ ! -f "$CURRENT_DIR/hosts/$TARGET_HOST/hardware-configuration.nix" ]] || [[ -f /etc/NIXOS ]]; then
+  echo "Generating fresh hardware-configuration.nix for this machine..."
+  mkdir -p "$CURRENT_DIR/hosts/$TARGET_HOST"
+  nixos-generate-config --show-hardware-config > "$CURRENT_DIR/hosts/$TARGET_HOST/hardware-configuration.nix"
+fi
+
+echo -e "\n[2/4] Setting Centralized Single-Source-of-Truth Identity..."
+sed -i -E "s/username = \".*\";/username = \"$TARGET_USER\";/" "$CURRENT_DIR/flake.nix"
+sed -i -E "s/hostname = \".*\";/hostname = \"$TARGET_HOST\";/" "$CURRENT_DIR/flake.nix"
+
+echo -e "\n[3/4] Preparing Git Index..."
+git -C "$CURRENT_DIR" add -A
+
+echo -e "\n[4/4] Building and Deploying System Closure..."
+if [[ -d "/mnt/etc/nixos" ]]; then
+  echo "Running under Live USB bare-metal installation mode..."
+  nixos-install --flake "$CURRENT_DIR#$TARGET_HOST"
+else
+  echo "Switching active running system..."
+  sudo nixos-rebuild switch --flake "$CURRENT_DIR#$TARGET_HOST"
+fi
+
+echo "=========================================================="
+echo "✔ Installation Complete! Reboot or log in with: $TARGET_USER"
+echo "=========================================================="

@@ -41,16 +41,19 @@
   xdg.portal = {
     enable = true;
     wlr.enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-gnome
+    ];
+    config = {
+      common = {
+        default = [ "gtk" ];
+      };
+      niri = {
+        default = [ "gnome" "gtk" ];
+      };
+    };
   };
-
-  environment.systemPackages = with pkgs; [
-    adwaita-icon-theme
-    hicolor-icon-theme
-    librsvg
-    gdk-pixbuf
-  ];
-
   # 5. Polkit Rules for Power Management
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {

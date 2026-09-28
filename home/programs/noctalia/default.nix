@@ -18,6 +18,12 @@
     force = true;
   };
 
+  xdg.configFile."noctalia/scripts/music-fetch.sh" = {
+    source = ./scripts/music-fetch.sh;
+    executable = true;
+    force = true;
+  };
+
   xdg.configFile."noctalia/colors.json" = {
     source = ./colors.json;
     force = true;
