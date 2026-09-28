@@ -24,7 +24,8 @@
   # 2. PAM Configuration for Screen Locking
   security.pam.services.hyprlock = {};
   security.pam.services.login = {};
-  # 3. Memory Optimization and Garbage Collection
+
+  # 3. Memory Optimization and Declarative Garbage Collection
   zramSwap.enable = true;
   nix.gc = {
     automatic = true;
@@ -54,6 +55,7 @@
       };
     };
   };
+
   # 5. Polkit Rules for Power Management
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {
@@ -68,7 +70,41 @@
       }
     });
   '';
-   # 6. Enable Zsh system-wide and configure user shell
+
+  # 6. Enable Zsh system-wide and configure user shell
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
+  
+  # 7. System-wide Core Packages and CLI Utilities (ĐOẠN MỚI THÊM)
+  environment.systemPackages = with pkgs; [
+    git
+    coreutils
+  ];
+
+  # 8. Pre-shutdown Git Auto-Snapshot Service (Zero Disk Bloat, Instant Execution)
+  systemd.services.nixos-auto-snapshot = {
+    description = "Automatic Git working tree snapshot before shutdown";
+    wantedBy = [ "poweroff.target" "reboot.target" "halt.target" ];
+    before = [ "poweroff.target" "reboot.target" "halt.target" ];
+    unitConfig = {
+      DefaultDependencies = "no";
+    };
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      User = "root";
+      TimeoutStopSec = "10s";
+      ExecStop = pkgs.writeShellScript "pre-shutdown-snapshot" ''
+        REPO_DIR="/etc/nixos"
+        if [ -d "$REPO_DIR/.git" ]; then
+          cd "$REPO_DIR"
+          export PATH="${pkgs.git}/bin:${pkgs.coreutils}/bin:$PATH"
+          if [ -n "$(${pkgs.git}/bin/git status --porcelain)" ]; then
+            ${pkgs.git}/bin/git add -A
+            ${pkgs.git}/bin/git commit -m "chore(auto): snapshot working tree before shutdown at $(date '+%Y-%m-%d %H:%M:%S')" || true
+          fi
+        fi
+      '';
+    };
+  };
 }
