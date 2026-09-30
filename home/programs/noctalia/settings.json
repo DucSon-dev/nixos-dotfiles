@@ -107,6 +107,9 @@
           "showCpuTemp": false
         },
         {
+          "id": "Network"
+        },
+        {
           "id": "Volume",
           "displayMode": "onhover"
         },

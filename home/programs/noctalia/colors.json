@@ -11,5 +11,7 @@
   "mOnSurfaceVariant": "#a1a1aa",
   "mOutline": "#27272a",
   "mBackground": "#09090b",
-  "mOnBackground": "#fafafa"
+  "mOnBackground": "#fafafa",
+  "mHover": "#27272a",
+  "mOnHover": "#fafafa"
 }

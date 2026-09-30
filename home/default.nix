@@ -37,6 +37,13 @@
     };
   };
 
+  # Direct GSettings / dconf schema synchronization for Libadwaita / GTK4 apps (Amberol)
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      icon-theme = "Adwaita";
+    };
+  };
   # FreeDesktop Universal Icon Fallback Chain & Missing Asset Aliases
   xdg.dataFile = {
     "icons/default/index.theme".text = ''
