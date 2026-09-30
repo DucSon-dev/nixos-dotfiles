@@ -73,6 +73,7 @@
 
   # 6. Enable Zsh system-wide and configure user shell
   programs.zsh.enable = true;
+  programs.dconf.enable = true;
   users.defaultUserShell = pkgs.zsh;
   
   # 7. System-wide Core Packages and CLI Utilities (ĐOẠN MỚI THÊM)

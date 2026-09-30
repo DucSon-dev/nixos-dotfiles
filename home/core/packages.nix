@@ -59,6 +59,10 @@
    # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
    adwaita-icon-theme
    papirus-icon-theme
-   vanilla-dmz   
+   vanilla-dmz
+   
+   # GTK / Libadwaita GSettings & Schema Tooling
+    glib
+    gsettings-desktop-schemas   
   ];
 }
