@@ -20,7 +20,8 @@
       cursor_trail_start_threshold = "2";
 
       # Scrollback Buffer (Lưu tới 20,000 dòng log)
-      scrollback_lines = 20000;
+       scrollbar_style = "none";
+       scrollback_lines = 20000;
 
       # Liquid Glass & Styling
       background_opacity = "0.72";

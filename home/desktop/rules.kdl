@@ -40,8 +40,8 @@ window-rule {
 window-rule {
     match app-id="^music-fetch-float$"
     open-floating true
-    default-column-width { proportion 0.40; }
-    default-window-height { proportion 0.25; }
+    default-column-width { proportion 0.55; }
+    default-window-height { proportion 0.48; }
 }
 
 
