@@ -8,16 +8,19 @@ import Quickshell.Io
 Scope {
     id: rootScope
 
-    // Shared Reactive State
+    // Reactive MPRIS state bindings
     property string songTitle: "No media playing"
     property string songArtist: ""
     property string playbackStatus: "Stopped"
     property string artUrl: ""
-    property string playerName: "Media"
+    property string playerName: ""
+    property string fullPlayerId: ""
+    property bool canGoNext: false
+    property bool canGoPrevious: false
     readonly property bool isPlaying: playbackStatus === "Playing"
     property bool popupVisible: false
 
-    // Auto-hide timer when track changes
+    // Auto-dismiss popup timer
     Timer {
         id: autoHideTimer
         interval: 4000
@@ -25,12 +28,36 @@ Scope {
         onTriggered: rootScope.popupVisible = false
     }
 
-    // MPRIS continuous stream poller
+    // Dynamic application icon resolver via Nerd Fonts
+    function getAppIcon(name) {
+        let n = name.toLowerCase();
+        if (n.indexOf("brave") !== -1) return "󰖟";    // Brave Browser icon
+        if (n.indexOf("spotify") !== -1) return "󰓇";  // Spotify icon
+        if (n.indexOf("firefox") !== -1) return "󰈹";  // Firefox icon
+        if (n.indexOf("chromium") !== -1 || n.indexOf("chrome") !== -1) return "󰊯";
+        if (n.indexOf("amberol") !== -1) return "󰎈";  // Amberol Music
+        if (n.indexOf("vlc") !== -1) return "󰕼";      // VLC Media
+        return "󰎆";                                  // Default music note
+    }
+
+    // Safe execution checking capabilities
+    function triggerAction(action) {
+        let pFlag = rootScope.fullPlayerId !== "" ? ["-p", rootScope.fullPlayerId] : [];
+        if (action === "next" && rootScope.canGoNext) {
+            Quickshell.execDetached(["playerctl", ...pFlag, "next"]);
+        } else if (action === "previous" && rootScope.canGoPrevious) {
+            Quickshell.execDetached(["playerctl", ...pFlag, "previous"]);
+        } else if (action === "play-pause") {
+            Quickshell.execDetached(["playerctl", ...pFlag, "play-pause"]);
+        }
+    }
+
+    // Continuous MPRIS metadata & capability stream poller
     Process {
         id: mprisWatcher
         command: [
             "playerctl", "--follow", "metadata",
-            "--format", "{{status}}:::{{xesam:title}}:::{{xesam:artist}}:::{{mpris:artUrl}}:::{{playerName}}"
+            "--format", "{{status}}:::{{xesam:title}}:::{{xesam:artist}}:::{{mpris:artUrl}}:::{{playerName}}:::{{mpris:canGoNext}}:::{{mpris:canGoPrevious}}"
         ]
         running: true
 
@@ -45,9 +72,16 @@ Scope {
                     rootScope.songTitle = parts[1] ? parts[1] : "Unknown Title";
                     rootScope.songArtist = parts[2] ? parts[2] : "";
                     rootScope.artUrl = (parts.length >= 4 && parts[3]) ? parts[3] : "";
-                    rootScope.playerName = (parts.length >= 5 && parts[4]) ? parts[4] : "Media Player";
+                    
+                    let rawPlayer = (parts.length >= 5 && parts[4]) ? parts[4] : "media";
+                    rootScope.fullPlayerId = rawPlayer;
+                    rootScope.playerName = rawPlayer.split(".")[0];
 
-                    // Auto-pop on song change if song actually changed
+                    // Capability checks for next and previous navigation
+                    rootScope.canGoNext = (parts.length >= 6 && parts[5] === "true");
+                    rootScope.canGoPrevious = (parts.length >= 7 && parts[6] === "true");
+
+                    // Trigger transient popup when track title updates
                     if (oldTitle !== rootScope.songTitle && rootScope.songTitle !== "No media playing") {
                         rootScope.popupVisible = true;
                         autoHideTimer.restart();
@@ -57,9 +91,9 @@ Scope {
         }
     }
 
-    // ==========================================
-    // 1. Taskbar Capsule Widget (Windows 11 Pill)
-    // ==========================================
+    // ========================================================
+    // 1. Taskbar Capsule Widget (Flush-mounted Pill Controller)
+    // ========================================================
     PanelWindow {
         id: capsuleWindow
 
@@ -68,27 +102,27 @@ Scope {
             right: true
         }
 
+        // Calibrated margins to align flush inside Noctalia floating bar
         margins {
-            top: 10
-            right: 320 // Aligned flush before the right tray items
+            top: 12
+            right: 320
         }
 
-        // Overlay on top of the bar, ignore compositor exclusion zone
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "noctalia-flyout-capsule"
         exclusionMode: ExclusionMode.Ignore
 
         color: "transparent"
-        implicitHeight: 32
+        implicitHeight: 24
         implicitWidth: capsulePill.implicitWidth
 
         Rectangle {
             id: capsulePill
-            implicitHeight: 30
-            implicitWidth: contentRow.implicitWidth + 20
+            implicitHeight: 24
+            implicitWidth: contentRow.implicitWidth + 14
             radius: 9999
 
-            // shadcn Dark Zinc #09090b + Specular liquid glass rim
+            // shadcn Dark Zinc #09090b + Specular rim border
             color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.88)
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
             border.width: 1
@@ -105,13 +139,13 @@ Scope {
             RowLayout {
                 id: contentRow
                 anchors.centerIn: parent
-                spacing: 8
+                spacing: 6
 
-                // Static Cover Art (No rotation)
+                // Album Art Thumbnail
                 Rectangle {
-                    width: 22
-                    height: 22
-                    radius: 4
+                    width: 16
+                    height: 16
+                    radius: 3
                     color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
                     border.color: Qt.rgba(1.0, 1.0, 1.0, 0.18)
                     border.width: 1
@@ -129,16 +163,16 @@ Scope {
                         anchors.centerIn: parent
                         text: "󰎆"
                         color: rootScope.isPlaying ? "#fafafa" : "#71717a"
-                        font.pixelSize: 11
+                        font.pixelSize: 9
                         visible: rootScope.artUrl === ""
                     }
                 }
 
-                // Marquee Text: Title & Artist
+                // Marquee Text Label
                 Item {
                     id: textContainer
-                    implicitWidth: 105
-                    implicitHeight: 18
+                    implicitWidth: 95
+                    implicitHeight: 14
                     clip: true
                     Layout.alignment: Qt.AlignVCenter
 
@@ -151,7 +185,7 @@ Scope {
                         y: (parent.height - contentHeight) / 2
                         text: textContainer.fullLabel
                         font.family: "Geist"
-                        font.pixelSize: 11
+                        font.pixelSize: 10
                         font.weight: Font.Medium
                         color: "#fafafa"
 
@@ -160,7 +194,7 @@ Scope {
                             running: primaryLabel.implicitWidth > textContainer.implicitWidth && rootScope.isPlaying
                             loops: Animation.Infinite
                             from: 0
-                            to: -(primaryLabel.implicitWidth + 24)
+                            to: -(primaryLabel.implicitWidth + 18)
                             duration: Math.max(3000, primaryLabel.implicitWidth * 35)
                         }
                     }
@@ -168,53 +202,56 @@ Scope {
                     Text {
                         id: secondaryLabel
                         y: (parent.height - contentHeight) / 2
-                        x: primaryLabel.x + primaryLabel.implicitWidth + 24
+                        x: primaryLabel.x + primaryLabel.implicitWidth + 18
                         text: textContainer.fullLabel
                         font.family: "Geist"
-                        font.pixelSize: 11
+                        font.pixelSize: 10
                         font.weight: Font.Medium
                         color: "#fafafa"
                         visible: marqueeAnim.running
                     }
                 }
 
-                // Mini Playback Controls: Previous, Play/Pause, Next
+                // Playback Navigation Controls with Dynamic Opacity
                 RowLayout {
                     spacing: 2
                     Layout.alignment: Qt.AlignVCenter
 
+                    // Previous Button
                     Rectangle {
-                        width: 20
-                        height: 20
-                        radius: 10
-                        color: prevArea.containsMouse ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
+                        width: 16
+                        height: 16
+                        radius: 8
+                        opacity: rootScope.canGoPrevious ? 1.0 : 0.28
+                        color: (rootScope.canGoPrevious && prevArea.containsMouse) ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
 
                         Text {
                             anchors.centerIn: parent
                             text: "󰒮"
-                            font.pixelSize: 10
-                            color: prevArea.containsMouse ? "#fafafa" : "#a1a1aa"
+                            font.pixelSize: 9
+                            color: rootScope.canGoPrevious ? (prevArea.containsMouse ? "#fafafa" : "#d4d4d8") : "#71717a"
                         }
 
                         MouseArea {
                             id: prevArea
                             anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Quickshell.execDetached(["playerctl", "previous"])
+                            hoverEnabled: rootScope.canGoPrevious
+                            cursorShape: rootScope.canGoPrevious ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            onClicked: rootScope.triggerAction("previous")
                         }
                     }
 
+                    // Play / Pause Toggle Button (Always Active)
                     Rectangle {
-                        width: 20
-                        height: 20
-                        radius: 10
+                        width: 16
+                        height: 16
+                        radius: 8
                         color: playArea.containsMouse ? Qt.rgba(255, 255, 255, 0.20) : Qt.rgba(255, 255, 255, 0.08)
 
                         Text {
                             anchors.centerIn: parent
                             text: rootScope.isPlaying ? "󰏤" : "󰐊"
-                            font.pixelSize: 11
+                            font.pixelSize: 9
                             color: "#fafafa"
                         }
 
@@ -223,44 +260,46 @@ Scope {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: Quickshell.execDetached(["playerctl", "play-pause"])
+                            onClicked: rootScope.triggerAction("play-pause")
                         }
                     }
 
+                    // Next Button
                     Rectangle {
-                        width: 20
-                        height: 20
-                        radius: 10
-                        color: nextArea.containsMouse ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
+                        width: 16
+                        height: 16
+                        radius: 8
+                        opacity: rootScope.canGoNext ? 1.0 : 0.28
+                        color: (rootScope.canGoNext && nextArea.containsMouse) ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
 
                         Text {
                             anchors.centerIn: parent
                             text: "󰒭"
-                            font.pixelSize: 10
-                            color: nextArea.containsMouse ? "#fafafa" : "#a1a1aa"
+                            font.pixelSize: 9
+                            color: rootScope.canGoNext ? (nextArea.containsMouse ? "#fafafa" : "#d4d4d8") : "#71717a"
                         }
 
                         MouseArea {
                             id: nextArea
                             anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Quickshell.execDetached(["playerctl", "next"])
+                            hoverEnabled: rootScope.canGoNext
+                            cursorShape: rootScope.canGoNext ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            onClicked: rootScope.triggerAction("next")
                         }
                     }
                 }
 
-                // Audio Waveform Visualizer Bars
+                // Waveform Audio Spectrum Bars
                 Row {
                     id: waveformRow
                     spacing: 2
                     Layout.alignment: Qt.AlignVCenter
 
                     Repeater {
-                        model: [10, 16, 8, 14, 18, 12, 16, 9]
+                        model: [7, 12, 5, 11, 14, 9, 12, 6]
                         Rectangle {
                             width: 2
-                            height: rootScope.isPlaying ? modelData : 4
+                            height: rootScope.isPlaying ? modelData : 3
                             radius: 1
                             color: Qt.rgba(250 / 255, 250 / 255, 250 / 255, 0.85)
                             anchors.verticalCenter: parent.verticalCenter
@@ -269,15 +308,15 @@ Scope {
                                 running: rootScope.isPlaying
                                 loops: Animation.Infinite
                                 NumberAnimation {
-                                    from: 4
+                                    from: 3
                                     to: modelData
-                                    duration: 250 + (index * 60)
+                                    duration: 250 + (index * 50)
                                     easing.type: Easing.InOutQuad
                                 }
                                 NumberAnimation {
                                     from: modelData
-                                    to: 4
-                                    duration: 250 + (index * 60)
+                                    to: 3
+                                    duration: 250 + (index * 50)
                                     easing.type: Easing.InOutQuad
                                 }
                             }
@@ -288,9 +327,9 @@ Scope {
         }
     }
 
-    // ==========================================
-    // 2. Rectangular Popup Card (Image 1 Style)
-    // ==========================================
+    // ========================================================
+    // 2. Rectangular Popup Card (Translucent Notification)
+    // ========================================================
     PanelWindow {
         id: cardWindow
         visible: rootScope.popupVisible
@@ -301,7 +340,7 @@ Scope {
         }
 
         margins {
-            top: 48 // Floats directly below the taskbar
+            top: 42
             right: 300
         }
 
@@ -316,7 +355,7 @@ Scope {
         Rectangle {
             anchors.fill: parent
             radius: 14
-            color: Qt.rgba(18 / 255, 18 / 255, 22 / 255, 0.94)
+            color: Qt.rgba(18 / 255, 18 / 255, 22 / 255, 0.95)
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.14)
             border.width: 1
 
@@ -325,7 +364,7 @@ Scope {
                 anchors.margins: 14
                 spacing: 14
 
-                // Large Square Album Art
+                // High-Resolution Cover Artwork
                 Rectangle {
                     width: 78
                     height: 78
@@ -352,7 +391,7 @@ Scope {
                     }
                 }
 
-                // Info & Controls Column
+                // Details and Card Controls
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
@@ -380,28 +419,28 @@ Scope {
 
                     Item { implicitHeight: 4 }
 
-                    // Card Control Buttons
                     RowLayout {
                         spacing: 12
 
-                        // Prev Button
+                        // Card Previous Button
                         Text {
                             text: "󰒮"
                             font.pixelSize: 14
-                            color: cardPrevArea.containsMouse ? "#ffffff" : "#a1a1aa"
+                            opacity: rootScope.canGoPrevious ? 1.0 : 0.28
+                            color: rootScope.canGoPrevious ? (cardPrevArea.containsMouse ? "#ffffff" : "#a1a1aa") : "#52525b"
                             MouseArea {
                                 id: cardPrevArea
                                 anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: rootScope.canGoPrevious
+                                cursorShape: rootScope.canGoPrevious ? Qt.PointingHandCursor : Qt.ArrowCursor
                                 onClicked: {
-                                    Quickshell.execDetached(["playerctl", "previous"]);
+                                    rootScope.triggerAction("previous");
                                     autoHideTimer.restart();
                                 }
                             }
                         }
 
-                        // Prominent Rounded Play/Pause Button
+                        // Big Rounded Action Play/Pause Button
                         Rectangle {
                             width: 32
                             height: 26
@@ -419,44 +458,46 @@ Scope {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
-                                    Quickshell.execDetached(["playerctl", "play-pause"]);
+                                    rootScope.triggerAction("play-pause");
                                     autoHideTimer.restart();
                                 }
                             }
                         }
 
-                        // Next Button
+                        // Card Next Button
                         Text {
                             text: "󰒭"
                             font.pixelSize: 14
-                            color: cardNextArea.containsMouse ? "#ffffff" : "#a1a1aa"
+                            opacity: rootScope.canGoNext ? 1.0 : 0.28
+                            color: rootScope.canGoNext ? (cardNextArea.containsMouse ? "#ffffff" : "#a1a1aa") : "#52525b"
                             MouseArea {
                                 id: cardNextArea
                                 anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: rootScope.canGoNext
+                                cursorShape: rootScope.canGoNext ? Qt.PointingHandCursor : Qt.ArrowCursor
                                 onClicked: {
-                                    Quickshell.execDetached(["playerctl", "next"]);
+                                    rootScope.triggerAction("next");
                                     autoHideTimer.restart();
                                 }
                             }
                         }
 
-                        // Player Source Label
+                        // Application Badge & Correct Icon Mapping
                         RowLayout {
-                            spacing: 4
-                            Layout.leftMargin: 10
+                            spacing: 5
+                            Layout.leftMargin: 8
 
                             Text {
-                                text: "󰈹"
-                                font.pixelSize: 12
+                                text: rootScope.getAppIcon(rootScope.playerName)
+                                font.pixelSize: 13
                                 color: "#38bdf8"
                             }
 
                             Text {
-                                text: rootScope.playerName
+                                text: rootScope.playerName.toUpperCase()
                                 font.family: "Geist"
                                 font.pixelSize: 10
+                                font.weight: Font.Bold
                                 color: "#71717a"
                             }
                         }
