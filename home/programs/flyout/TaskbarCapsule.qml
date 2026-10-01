@@ -137,7 +137,7 @@ Scope {
     // ========================================================
     // 1. Taskbar Capsule Widget (Perfect Vertical Center Alignment)
     // ========================================================
-    PanelWindow {
+        PanelWindow {
         id: capsuleWindow
 
         anchors {
@@ -145,10 +145,10 @@ Scope {
             right: true
         }
 
-        // Noctalia Bar: marginVertical (8) + frameThickness (6) = 14px top offset for center alignment
+        // Exact vertical center alignment based on Noctalia compact density (barHeight 25, frame 6, padding 3)
         margins {
-            top: 14
-            right: 325
+            top: 18
+            right: 320
         }
 
         WlrLayershell.layer: WlrLayer.Overlay
@@ -156,15 +156,14 @@ Scope {
         exclusionMode: ExclusionMode.Ignore
 
         color: "transparent"
-        implicitHeight: 24
+        implicitHeight: 23
         implicitWidth: capsulePill.implicitWidth
 
         Rectangle {
             id: capsulePill
-            implicitHeight: 24
+            implicitHeight: 23
             implicitWidth: contentRow.implicitWidth + 14
             radius: 9999
-
             // shadcn Dark Zinc #09090b + Specular rim border
             color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.88)
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
