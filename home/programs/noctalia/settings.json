@@ -91,10 +91,7 @@
       ],
       "right": [
         {
-          "id": "CustomButton",
-          "icon": "music",
-          "showIcon": false,
-          "source": "/home/ducson/.config/flyout/TaskbarCapsule.qml"
+          "id": "MediaMini"
         },
         {
           "id": "CustomButton",

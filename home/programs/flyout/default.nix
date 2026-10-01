@@ -17,5 +17,6 @@ in
 
     xdg.configFile."fluent-flyout/config.json".source = ./config.json;
     xdg.configFile."flyout/TaskbarCapsule.qml".source = ./TaskbarCapsule.qml;
-  };
+    xdg.configFile."noctalia/Modules/Bar/Widgets/MediaMini.qml".source = ./TaskbarCapsule.qml; 
+ };
 }
