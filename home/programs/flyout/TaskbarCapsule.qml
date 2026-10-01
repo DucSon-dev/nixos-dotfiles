@@ -4,17 +4,18 @@ import QtQuick.Controls
 import Quickshell
 import qs.Commons
 import qs.Services.Media
+import qs.Widgets.AudioSpectrum
 
 Rectangle {
     id: root
 
-    // Capsule sizing standards
+    // Standard capsule height
     implicitHeight: Math.max(30, Math.min(34, Style.getCapsuleHeightForScreen ? Style.getCapsuleHeightForScreen("") : 32))
-    implicitWidth: contentRow.implicitWidth + 20
+    implicitWidth: contentRow.implicitWidth + 24
     radius: 9999
 
-    // shadcn Dark Zinc #09090b + Apple Liquid Glass specular border
-    color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.72)
+    // shadcn Dark Zinc #09090b + Specular liquid glass rim
+    color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.78)
     border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
     border.width: 1
 
@@ -22,31 +23,54 @@ Rectangle {
     readonly property bool isPlaying: MediaService.isPlaying
     readonly property string currentTitle: MediaService.trackTitle || "No media playing"
     readonly property string currentArtist: MediaService.trackArtist || ""
+    readonly property string artUrl: MediaService.trackCoverUrl || ""
+
+    // Spectrum service integration
+    readonly property string spectrumId: "taskbar:capsule:spectrum"
+    Component.onCompleted: {
+        if (typeof SpectrumService !== "undefined") {
+            SpectrumService.registerComponent(root.spectrumId);
+        }
+    }
+    Component.onDestruction: {
+        if (typeof SpectrumService !== "undefined") {
+            SpectrumService.unregisterComponent(root.spectrumId);
+        }
+    }
 
     RowLayout {
         id: contentRow
         anchors.centerIn: parent
         spacing: 8
 
-        // Spinning Disc / Vinyl Record Icon
+        // Cover Art / Spinning Vinyl Disc
         Rectangle {
-            id: discIconWrapper
-            width: 20
-            height: 20
-            radius: 10
+            id: artWrapper
+            width: 22
+            height: 22
+            radius: 11
             color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.18)
             border.width: 1
+            clip: true
+
+            Image {
+                anchors.fill: parent
+                source: root.artUrl
+                fillMode: Image.PreserveAspectCrop
+                visible: root.artUrl !== ""
+            }
 
             Text {
                 anchors.centerIn: parent
                 text: "󰎆"
                 color: root.isPlaying ? "#fafafa" : "#71717a"
                 font.pixelSize: 11
+                visible: root.artUrl === ""
             }
 
             RotationAnimator {
-                target: discIconWrapper
+                target: artWrapper
                 from: 0
                 to: 360
                 duration: 6000
@@ -55,11 +79,11 @@ Rectangle {
             }
         }
 
-        // Marquee Text Container
+        // Title & Artist Layout (Marquee Container)
         Item {
             id: textContainer
-            implicitWidth: 110
-            implicitHeight: 18
+            implicitWidth: 105
+            implicitHeight: 20
             clip: true
 
             readonly property string fullLabel: root.currentArtist !== ""
@@ -98,7 +122,7 @@ Rectangle {
             }
         }
 
-        // Mini Media Controls
+        // Mini Playback Controls: Previous, Play/Pause, Next
         RowLayout {
             spacing: 2
 
@@ -170,6 +194,19 @@ Rectangle {
                     onClicked: MediaService.next()
                 }
             }
+        }
+
+        // Audio Spectrum Waveform Visualizer
+        AudioSpectrum {
+            id: barSpectrum
+            implicitWidth: 46
+            implicitHeight: 16
+            barCount: 10
+            barSpacing: 2
+            barRadius: 2
+            barColor: Qt.rgba(250 / 255, 250 / 255, 250 / 255, 0.85)
+            active: root.isPlaying
+            visible: true
         }
     }
 }
