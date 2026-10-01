@@ -147,7 +147,7 @@ Scope {
 
         // Exact vertical center alignment based on Noctalia compact density (barHeight 25, frame 6, padding 3)
         margins {
-            top: 18
+            top: 9
             right: 320
         }
 
