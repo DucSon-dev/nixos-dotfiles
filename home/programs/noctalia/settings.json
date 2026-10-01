@@ -92,6 +92,12 @@
       "right": [
         {
           "id": "CustomButton",
+          "icon": "music",
+          "showIcon": false,
+          "source": "/home/ducson/.config/flyout/TaskbarCapsule.qml"
+        },
+        {
+          "id": "CustomButton",
           "icon": "git-branch",
           "showIcon": true,
           "textCommand": "",
