@@ -91,6 +91,9 @@
       ],
       "right": [
         {
+          "id": "MediaMini"
+        },
+         {
           "id": "CustomButton",
           "icon": "git-branch",
           "showIcon": true,
