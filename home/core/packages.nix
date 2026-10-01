@@ -14,11 +14,7 @@
     wget
     wl-clipboard
     swaybg
-    (noctalia-shell.overrideAttrs (oldAttrs: {
-      postInstall = (oldAttrs.postInstall or "") + ''
-        cp -f ${../programs/flyout/TaskbarCapsule.qml} $out/share/noctalia-shell/Modules/Bar/Widgets/MediaMini.qml
-      '';
-    }))
+    noctalia-shell
     firefox
     brave
     kitty
