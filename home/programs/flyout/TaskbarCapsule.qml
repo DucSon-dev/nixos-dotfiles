@@ -2,333 +2,229 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Wayland
-import Quickshell.Io
+import qs.Commons
+import qs.Modules.Bar.Extras
+import qs.Services.Media
+import qs.Services.UI
+import qs.Widgets
+import qs.Widgets.AudioSpectrum
 
-Scope {
+Item {
     id: root
 
-    // MPRIS State
-    property string trackTitle: ""
-    property string trackArtist: ""
-    property string artUrl: ""
-    property string playbackStatus: "Stopped"
-    property string playerName: ""
-    property bool isPlaying: playbackStatus === "Playing"
-    property bool hasMedia: trackTitle !== ""
+    property ShellScreen screen
+    property string widgetId: ""
+    property string section: ""
+    property int sectionWidgetIndex: -1
+    property int sectionWidgetsCount: 0
 
-    // Auto toast flyout card timer
-    Timer {
-        id: autoFlyoutTimer
-        interval: 3500
-        repeat: false
-        onTriggered: flyoutWindow.visible = false
+    readonly property string screenName: screen ? screen.name : ""
+    property var widgetMetadata: BarWidgetRegistry.widgetMetadata[widgetId] ?? {}
+    property var widgetSettings: {
+        if (section && sectionWidgetIndex >= 0 && screenName) {
+            var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+            if (widgets && sectionWidgetIndex < widgets.length) {
+                return widgets[sectionWidgetIndex];
+            }
+        }
+        return {};
     }
 
-    function showFlyoutTemporarily() {
-        flyoutWindow.visible = true;
-        autoFlyoutTimer.restart();
+    readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
+    readonly property bool hasPlayer: MediaService.currentPlayer !== null
+    readonly property bool isPlaying: MediaService.isPlaying
+    readonly property string currentTitle: MediaService.trackTitle || "No media playing"
+    readonly property string currentArtist: MediaService.trackArtist || ""
+    readonly property string artUrl: MediaService.trackCoverUrl || ""
+
+    readonly property bool canGoNext: MediaService.canGoNext
+    readonly property bool canGoPrevious: MediaService.canGoPrevious
+
+    // Native audio spectrum registration
+    readonly property string spectrumId: "bar:mediamini:spectrum"
+    Component.onCompleted: {
+        if (typeof SpectrumService !== "undefined") {
+            SpectrumService.registerComponent(root.spectrumId);
+        }
+    }
+    Component.onDestruction: {
+        if (typeof SpectrumService !== "undefined") {
+            SpectrumService.unregisterComponent(root.spectrumId);
+        }
     }
 
-    // MPRIS Poller Process
-    Process {
-        id: mprisProcess
-        command: ["playerctl", "metadata", "--format", "{{xesam:title}}|||{{xesam:artist}}|||{{mpris:artUrl}}|||{{status}}|||{{playerName}}"]
-        stdout: SplitParser {
-            split: "\n"
-            onRead: data => {
-                if (data.trim() !== "") {
-                    var parts = data.split("|||");
-                    if (parts.length >= 5) {
-                        var newTitle = parts[0].trim();
-                        if (newTitle !== "" && newTitle !== root.trackTitle && root.trackTitle !== "") {
-                            root.showFlyoutTemporarily();
-                        }
-                        root.trackTitle = newTitle;
-                        root.trackArtist = parts[1].trim();
-                        root.artUrl = parts[2].trim();
-                        root.playbackStatus = parts[3].trim();
-                        root.playerName = parts[4].trim();
+    implicitWidth: mainCapsule.implicitWidth
+    implicitHeight: capsuleHeight
+    visible: hasPlayer
+
+    Capsule {
+        id: mainCapsule
+        anchors.fill: parent
+        Layout.alignment: Qt.AlignVCenter
+
+        RowLayout {
+            id: contentRow
+            anchors.centerIn: parent
+            spacing: 6
+
+            // 1. Cover Art (Bo nhẹ góc 4px)
+            Rectangle {
+                width: 18
+                height: 18
+                radius: 4
+                color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
+                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.18)
+                border.width: 1
+                clip: true
+                Layout.alignment: Qt.AlignVCenter
+
+                Image {
+                    anchors.fill: parent
+                    source: root.artUrl
+                    fillMode: Image.PreserveAspectCrop
+                    visible: root.artUrl !== ""
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "󰎆"
+                    color: root.isPlaying ? "#fafafa" : "#71717a"
+                    font.pixelSize: 10
+                    visible: root.artUrl === ""
+                }
+            }
+
+            // 2. Marquee Text (Title + Artist)
+            Item {
+                id: textContainer
+                implicitWidth: 100
+                implicitHeight: 14
+                clip: true
+                Layout.alignment: Qt.AlignVCenter
+
+                readonly property string fullLabel: root.currentArtist !== ""
+                    ? (root.currentTitle + " • " + root.currentArtist)
+                    : root.currentTitle
+
+                Text {
+                    id: primaryLabel
+                    y: (parent.height - contentHeight) / 2
+                    text: textContainer.fullLabel
+                    font.family: "Geist"
+                    font.pixelSize: 10
+                    font.weight: Font.Medium
+                    color: "#fafafa"
+
+                    NumberAnimation on x {
+                        id: marqueeAnim
+                        running: primaryLabel.implicitWidth > textContainer.implicitWidth && root.isPlaying
+                        loops: Animation.Infinite
+                        from: 0
+                        to: -(primaryLabel.implicitWidth + 18)
+                        duration: Math.max(3000, primaryLabel.implicitWidth * 35)
                     }
-                } else {
-                    root.trackTitle = "";
-                    root.trackArtist = "";
-                    root.artUrl = "";
-                    root.playbackStatus = "Stopped";
                 }
-            }
-        }
-    }
 
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        onTriggered: mprisProcess.running = true
-    }
-
-    // ==========================================
-    // 1. TASKBAR CAPSULE (Anchored to Top Bar)
-    // ==========================================
-    PanelWindow {
-        id: capsuleWindow
-        WlrLayershell.layer: WlrLayer.Top
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-        exclusionMode: ExclusionMode.Ignore
-
-        anchors {
-            top: true
-            right: true
-        }
-
-        margins {
-            top: 10
-            right: 420
-        }
-
-        implicitWidth: capsuleFrame.implicitWidth
-        implicitHeight: 28
-        color: "transparent"
-        visible: root.hasMedia
-
-        Rectangle {
-            id: capsuleFrame
-            implicitWidth: contentRow.implicitWidth + 16
-            implicitHeight: 28
-            radius: 14
-            color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85) // Dark Zinc glass
-            border.color: Qt.rgba(255, 255, 255, 0.16)
-            border.width: 1
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: {
-                    flyoutWindow.visible = !flyoutWindow.visible;
-                    if (flyoutWindow.visible) autoFlyoutTimer.restart();
+                Text {
+                    id: secondaryLabel
+                    y: (parent.height - contentHeight) / 2
+                    x: primaryLabel.x + primaryLabel.implicitWidth + 18
+                    text: textContainer.fullLabel
+                    font.family: "Geist"
+                    font.pixelSize: 10
+                    font.weight: Font.Medium
+                    color: "#fafafa"
+                    visible: marqueeAnim.running
                 }
             }
 
+            // 3. Mini Media Controls (Next / Prev / Play-Pause)
             RowLayout {
-                id: contentRow
-                anchors.centerIn: parent
-                spacing: 8
+                spacing: 2
+                Layout.alignment: Qt.AlignVCenter
 
-                // Cover Art Thumbnail
+                // Previous
                 Rectangle {
-                    width: 18
-                    height: 18
-                    radius: 4
-                    color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.9)
-                    clip: true
-                    Layout.alignment: Qt.AlignVCenter
-
-                    Image {
-                        anchors.fill: parent
-                        source: root.artUrl
-                        fillMode: Image.PreserveAspectCrop
-                        visible: root.artUrl !== ""
-                    }
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰎆"
-                        color: root.isPlaying ? "#fafafa" : "#71717a"
-                        font.pixelSize: 10
-                        visible: root.artUrl === ""
-                    }
-                }
-
-                // Title Marquee Text
-                Item {
-                    id: textWrap
-                    implicitWidth: 100
-                    implicitHeight: 14
-                    clip: true
-                    Layout.alignment: Qt.AlignVCenter
-
-                    readonly property string fullText: root.trackArtist !== "" ? (root.trackTitle + " • " + root.trackArtist) : root.trackTitle
-
-                    Text {
-                        id: label1
-                        y: (parent.height - contentHeight) / 2
-                        text: textWrap.fullText
-                        font.family: "Geist"
-                        font.pixelSize: 10
-                        font.weight: Font.Medium
-                        color: "#fafafa"
-
-                        NumberAnimation on x {
-                            running: label1.implicitWidth > textWrap.implicitWidth && root.isPlaying
-                            loops: Animation.Infinite
-                            from: 0
-                            to: -(label1.implicitWidth + 16)
-                            duration: Math.max(3000, label1.implicitWidth * 35)
-                        }
-                    }
-                }
-
-                // Dynamic Audio Spectrum Waveform
-                Row {
-                    spacing: 2
-                    Layout.alignment: Qt.AlignVCenter
-
-                    Repeater {
-                        model: [7, 12, 5, 14, 9, 13, 6, 11]
-                        Rectangle {
-                            width: 2
-                            height: root.isPlaying ? Math.max(3, modelData * (0.4 + 0.6 * Math.random())) : 3
-                            radius: 1
-                            color: "#38bdf8" // Accent Sky Blue
-                            Behavior on height { NumberAnimation { duration: 180 } }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // ==========================================
-    // 2. HORIZONTAL FLYOUT CARD (Popup)
-    // ==========================================
-    PanelWindow {
-        id: flyoutWindow
-        WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-        exclusionMode: ExclusionMode.Ignore
-
-        anchors {
-            top: true
-            right: true
-        }
-
-        margins {
-            top: 50
-            right: 320
-        }
-
-        implicitWidth: 320
-        implicitHeight: 96
-        color: "transparent"
-        visible: false
-
-        Rectangle {
-            anchors.fill: parent
-            radius: 12
-            color: Qt.rgba(24 / 255, 27 / 255, 32 / 255, 0.94)
-            border.color: Qt.rgba(255, 255, 255, 0.16)
-            border.width: 1
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 10
-                spacing: 12
-
-                // Large Artwork
-                Rectangle {
-                    width: 64
-                    height: 64
+                    width: 16
+                    height: 16
                     radius: 8
-                    color: Qt.rgba(15 / 255, 15 / 255, 17 / 255, 0.9)
-                    clip: true
-                    Layout.alignment: Qt.AlignVCenter
+                    opacity: root.canGoPrevious ? 1.0 : 0.3
+                    color: (root.canGoPrevious && prevArea.containsMouse) ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
 
-                    Image {
-                        anchors.fill: parent
-                        source: root.artUrl
-                        fillMode: Image.PreserveAspectCrop
-                        visible: root.artUrl !== ""
-                    }
                     Text {
                         anchors.centerIn: parent
-                        text: "󰎆"
-                        color: "#a1a1aa"
-                        font.pixelSize: 22
-                        visible: root.artUrl === ""
+                        text: "󰒮"
+                        font.pixelSize: 9
+                        color: root.canGoPrevious ? "#fafafa" : "#71717a"
+                    }
+
+                    MouseArea {
+                        id: prevArea
+                        anchors.fill: parent
+                        hoverEnabled: root.canGoPrevious
+                        cursorShape: root.canGoPrevious ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: MediaService.previous()
                     }
                 }
 
-                // Controls & Meta
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
-                    spacing: 3
+                // Play / Pause Toggle
+                Rectangle {
+                    width: 16
+                    height: 16
+                    radius: 8
+                    color: playArea.containsMouse ? Qt.rgba(255, 255, 255, 0.20) : Qt.rgba(255, 255, 255, 0.08)
 
                     Text {
-                        Layout.fillWidth: true
-                        text: root.trackTitle !== "" ? root.trackTitle : "No Media"
-                        font.family: "Geist"
-                        font.pixelSize: 12
-                        font.weight: Font.DemiBold
+                        anchors.centerIn: parent
+                        text: root.isPlaying ? "󰏤" : "󰐊"
+                        font.pixelSize: 9
                         color: "#fafafa"
-                        elide: Text.ElideRight
                     }
 
-                    Text {
-                        Layout.fillWidth: true
-                        text: root.trackArtist !== "" ? root.trackArtist : "Unknown Artist"
-                        font.family: "Geist"
-                        font.pixelSize: 10
-                        color: "#a1a1aa"
-                        elide: Text.ElideRight
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 10
-                        Layout.topMargin: 2
-
-                        Text {
-                            text: "󰒮"
-                            font.pixelSize: 13
-                            color: "#d4d4d8"
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: Quickshell.execDetached(["playerctl", "previous"])
-                            }
-                        }
-
-                        Rectangle {
-                            width: 24
-                            height: 24
-                            radius: 6
-                            color: "#38bdf8"
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: root.isPlaying ? "󰏤" : "󰐊"
-                                font.pixelSize: 12
-                                color: "#09090b"
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: Quickshell.execDetached(["playerctl", "play-pause"])
-                            }
-                        }
-
-                        Text {
-                            text: "󰒭"
-                            font.pixelSize: 13
-                            color: "#d4d4d8"
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: Quickshell.execDetached(["playerctl", "next"])
-                            }
-                        }
-
-                        Item { Layout.fillWidth: true }
-
-                        Text {
-                            text: root.playerName.toUpperCase()
-                            font.family: "Geist"
-                            font.pixelSize: 9
-                            color: "#71717a"
-                        }
+                    MouseArea {
+                        id: playArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: MediaService.playPause()
                     }
                 }
+
+                // Next
+                Rectangle {
+                    width: 16
+                    height: 16
+                    radius: 8
+                    opacity: root.canGoNext ? 1.0 : 0.3
+                    color: (root.canGoNext && nextArea.containsMouse) ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "󰒭"
+                        font.pixelSize: 9
+                        color: root.canGoNext ? "#fafafa" : "#71717a"
+                    }
+
+                    MouseArea {
+                        id: nextArea
+                        anchors.fill: parent
+                        hoverEnabled: root.canGoNext
+                        cursorShape: root.canGoNext ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: MediaService.next()
+                    }
+                }
+            }
+
+            // 4. Native Audio Spectrum (Sóng âm cyan)
+            AudioSpectrum {
+                implicitWidth: 36
+                implicitHeight: 14
+                barCount: 8
+                barSpacing: 2
+                barRadius: 1
+                barColor: Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.90)
+                active: root.isPlaying
+                Layout.alignment: Qt.AlignVCenter
             }
         }
     }
