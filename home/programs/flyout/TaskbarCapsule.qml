@@ -8,7 +8,7 @@ import Quickshell.Io
 Scope {
     id: rootScope
 
-    // Reactive MPRIS state bindings
+    // Reactive State Properties
     property string songTitle: "No media playing"
     property string songArtist: ""
     property string playbackStatus: "Stopped"
@@ -20,7 +20,7 @@ Scope {
     readonly property bool isPlaying: playbackStatus === "Playing"
     property bool popupVisible: false
 
-    // Auto-dismiss popup timer
+    // Auto-hide timer for transient popup
     Timer {
         id: autoHideTimer
         interval: 4000
@@ -28,19 +28,31 @@ Scope {
         onTriggered: rootScope.popupVisible = false
     }
 
-    // Dynamic application icon resolver via Nerd Fonts
-    function getAppIcon(name) {
-        let n = name.toLowerCase();
-        if (n.indexOf("brave") !== -1) return "󰖟";    // Brave Browser icon
-        if (n.indexOf("spotify") !== -1) return "󰓇";  // Spotify icon
-        if (n.indexOf("firefox") !== -1) return "󰈹";  // Firefox icon
-        if (n.indexOf("chromium") !== -1 || n.indexOf("chrome") !== -1) return "󰊯";
-        if (n.indexOf("amberol") !== -1) return "󰎈";  // Amberol Music
-        if (n.indexOf("vlc") !== -1) return "󰕼";      // VLC Media
-        return "󰎆";                                  // Default music note
+    // Normalized Application Display Name Resolver
+    function getNormalizedAppName(rawId) {
+        let idLower = rawId.toLowerCase();
+        if (idLower.indexOf("amberol") !== -1) return "Amberol";
+        if (idLower.indexOf("brave") !== -1) return "Brave";
+        if (idLower.indexOf("spotify") !== -1) return "Spotify";
+        if (idLower.indexOf("firefox") !== -1) return "Firefox";
+        if (idLower.indexOf("chrome") !== -1 || idLower.indexOf("chromium") !== -1) return "Chrome";
+        if (idLower.indexOf("vlc") !== -1) return "VLC";
+        return rawId.split(".")[0];
     }
 
-    // Safe execution checking capabilities
+    // Application Icon Resolver using Nerd Fonts
+    function getAppIcon(rawId) {
+        let idLower = rawId.toLowerCase();
+        if (idLower.indexOf("amberol") !== -1) return "󰎈";
+        if (idLower.indexOf("brave") !== -1) return "󰖟";
+        if (idLower.indexOf("spotify") !== -1) return "󰓇";
+        if (idLower.indexOf("firefox") !== -1) return "󰈹";
+        if (idLower.indexOf("chrome") !== -1 || idLower.indexOf("chromium") !== -1) return "󰊯";
+        if (idLower.indexOf("vlc") !== -1) return "󰕼";
+        return "󰎆";
+    }
+
+    // Media action dispatcher
     function triggerAction(action) {
         let pFlag = rootScope.fullPlayerId !== "" ? ["-p", rootScope.fullPlayerId] : [];
         if (action === "next" && rootScope.canGoNext) {
@@ -52,12 +64,48 @@ Scope {
         }
     }
 
-    // Continuous MPRIS metadata & capability stream poller
+    // Periodic capability poller via D-Bus properties
+    Process {
+        id: capabilityPoller
+        running: false
+
+        stdout: SplitParser {
+            onRead: data => {
+                let line = data.trim();
+                if (!line) return;
+                let parts = line.split(":::");
+                if (parts.length >= 2) {
+                    rootScope.canGoNext = (parts[0] === "true");
+                    rootScope.canGoPrevious = (parts[1] === "true");
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: capabilityTimer
+        interval: 1000
+        repeat: true
+        running: rootScope.fullPlayerId !== ""
+        onTriggered: {
+            if (rootScope.fullPlayerId !== "") {
+                capabilityPoller.command = [
+                    "bash", "-c",
+                    "NEXT=$(busctl --user get-property org.mpris.MediaPlayer2." + rootScope.fullPlayerId + " /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player CanGoNext 2>/dev/null | awk '{print $2}'); " +
+                    "PREV=$(busctl --user get-property org.mpris.MediaPlayer2." + rootScope.fullPlayerId + " /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player CanGoPrevious 2>/dev/null | awk '{print $2}'); " +
+                    "echo \"${NEXT:-false}:::${PREV:-false}\""
+                ];
+                capabilityPoller.running = true;
+            }
+        }
+    }
+
+    // Continuous MPRIS metadata stream
     Process {
         id: mprisWatcher
         command: [
             "playerctl", "--follow", "metadata",
-            "--format", "{{status}}:::{{xesam:title}}:::{{xesam:artist}}:::{{mpris:artUrl}}:::{{playerName}}:::{{mpris:canGoNext}}:::{{mpris:canGoPrevious}}"
+            "--format", "{{status}}:::{{xesam:title}}:::{{xesam:artist}}:::{{mpris:artUrl}}:::{{playerName}}"
         ]
         running: true
 
@@ -72,16 +120,11 @@ Scope {
                     rootScope.songTitle = parts[1] ? parts[1] : "Unknown Title";
                     rootScope.songArtist = parts[2] ? parts[2] : "";
                     rootScope.artUrl = (parts.length >= 4 && parts[3]) ? parts[3] : "";
-                    
                     let rawPlayer = (parts.length >= 5 && parts[4]) ? parts[4] : "media";
                     rootScope.fullPlayerId = rawPlayer;
-                    rootScope.playerName = rawPlayer.split(".")[0];
+                    rootScope.playerName = rootScope.getNormalizedAppName(rawPlayer);
 
-                    // Capability checks for next and previous navigation
-                    rootScope.canGoNext = (parts.length >= 6 && parts[5] === "true");
-                    rootScope.canGoPrevious = (parts.length >= 7 && parts[6] === "true");
-
-                    // Trigger transient popup when track title updates
+                    // Trigger popup on song transition
                     if (oldTitle !== rootScope.songTitle && rootScope.songTitle !== "No media playing") {
                         rootScope.popupVisible = true;
                         autoHideTimer.restart();
@@ -92,7 +135,7 @@ Scope {
     }
 
     // ========================================================
-    // 1. Taskbar Capsule Widget (Flush-mounted Pill Controller)
+    // 1. Taskbar Capsule Widget (Perfect Vertical Center Alignment)
     // ========================================================
     PanelWindow {
         id: capsuleWindow
@@ -102,10 +145,10 @@ Scope {
             right: true
         }
 
-        // Calibrated margins to align flush inside Noctalia floating bar
+        // Noctalia Bar: marginVertical (8) + frameThickness (6) = 14px top offset for center alignment
         margins {
-            top: 12
-            right: 320
+            top: 14
+            right: 325
         }
 
         WlrLayershell.layer: WlrLayer.Overlay
@@ -141,7 +184,7 @@ Scope {
                 anchors.centerIn: parent
                 spacing: 6
 
-                // Album Art Thumbnail
+                // Thumbnail Cover Art
                 Rectangle {
                     width: 16
                     height: 16
@@ -241,7 +284,7 @@ Scope {
                         }
                     }
 
-                    // Play / Pause Toggle Button (Always Active)
+                    // Play / Pause Toggle Button
                     Rectangle {
                         width: 16
                         height: 16
@@ -328,7 +371,7 @@ Scope {
     }
 
     // ========================================================
-    // 2. Rectangular Popup Card (Translucent Notification)
+    // 2. Rectangular Popup Card
     // ========================================================
     PanelWindow {
         id: cardWindow
@@ -340,7 +383,7 @@ Scope {
         }
 
         margins {
-            top: 42
+            top: 44
             right: 300
         }
 
@@ -364,7 +407,7 @@ Scope {
                 anchors.margins: 14
                 spacing: 14
 
-                // High-Resolution Cover Artwork
+                // Album Art HD
                 Rectangle {
                     width: 78
                     height: 78
@@ -440,7 +483,7 @@ Scope {
                             }
                         }
 
-                        // Big Rounded Action Play/Pause Button
+                        // Prominent Play/Pause Button
                         Rectangle {
                             width: 32
                             height: 26
@@ -482,13 +525,13 @@ Scope {
                             }
                         }
 
-                        // Application Badge & Correct Icon Mapping
+                        // Application Badge with Clean Icon & Name
                         RowLayout {
                             spacing: 5
                             Layout.leftMargin: 8
 
                             Text {
-                                text: rootScope.getAppIcon(rootScope.playerName)
+                                text: rootScope.getAppIcon(rootScope.fullPlayerId)
                                 font.pixelSize: 13
                                 color: "#38bdf8"
                             }
