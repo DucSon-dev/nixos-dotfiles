@@ -6,7 +6,8 @@
  spawn-at-startup "swaybg" "-c" "09090b"
  spawn-at-startup "noctalia-shell"
  spawn-at-startup "fcitx5" "-d"
- spawn-at-startup "sh" "-c" "touch /tmp/flyout_trigger && noctalia-qs -p /etc/nixos/home/programs/flyout/CompactFlyout.qml"
+ spawn-at-startup "/nix/store/sm3wl9r36x33y1sgn68ydn0wv0ax7y7v-noctalia-qs-0.0.12/bin/quickshell" "-p" "/etc/nixos/home/programs/flyout/TaskbarCapsule.qml"
+
 
 // 2. Hardware & Input
 include "input.kdl"
