@@ -36,10 +36,6 @@ Item {
     readonly property string currentTitle: MediaService.trackTitle || "No media playing"
     readonly property string currentArtist: MediaService.trackArtist || ""
     readonly property string artUrl: MediaService.trackCoverUrl || ""
-    
-    // Dynamic capability states
-    readonly property bool canGoNext: MediaService.canGoNext
-    readonly property bool canGoPrevious: MediaService.canGoPrevious
 
     // Native audio spectrum registration
     readonly property string spectrumId: "bar:mediamini:spectrum"
@@ -63,12 +59,22 @@ Item {
         anchors.fill: parent
         Layout.alignment: Qt.AlignVCenter
 
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                // Trigger IPC or global toggle event for the horizontal flyout card
+                Quickshell.execDetached(["sh", "-c", "echo 'toggle' > /tmp/flyout_trigger"]);
+            }
+        }
+
         RowLayout {
             id: contentRow
             anchors.centerIn: parent
-            spacing: 6
+            spacing: 8
 
-            // 1. Cover Art (Bo nhẹ góc kiểu Fluent)
+            // 1. Cover Art Thumbnail (Rounded 4px)
             Rectangle {
                 width: 18
                 height: 18
@@ -98,7 +104,7 @@ Item {
             // 2. Marquee Text (Title + Artist)
             Item {
                 id: textContainer
-                implicitWidth: 95
+                implicitWidth: 105
                 implicitHeight: 14
                 clip: true
                 Layout.alignment: Qt.AlignVCenter
@@ -139,91 +145,14 @@ Item {
                 }
             }
 
-            // 3. Mini Media Controls (Dùng trực tiếp MediaService native)
-            RowLayout {
-                spacing: 2
-                Layout.alignment: Qt.AlignVCenter
-
-                // Previous
-                Rectangle {
-                    width: 16
-                    height: 16
-                    radius: 8
-                    opacity: root.canGoPrevious ? 1.0 : 0.28
-                    color: (root.canGoPrevious && prevArea.containsMouse) ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰒮"
-                        font.pixelSize: 9
-                        color: root.canGoPrevious ? (prevArea.containsMouse ? "#fafafa" : "#d4d4d8") : "#71717a"
-                    }
-
-                    MouseArea {
-                        id: prevArea
-                        anchors.fill: parent
-                        hoverEnabled: root.canGoPrevious
-                        cursorShape: root.canGoPrevious ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: MediaService.previous()
-                    }
-                }
-
-                // Play / Pause Toggle
-                Rectangle {
-                    width: 16
-                    height: 16
-                    radius: 8
-                    color: playArea.containsMouse ? Qt.rgba(255, 255, 255, 0.20) : Qt.rgba(255, 255, 255, 0.08)
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: root.isPlaying ? "󰏤" : "󰐊"
-                        font.pixelSize: 9
-                        color: "#fafafa"
-                    }
-
-                    MouseArea {
-                        id: playArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: MediaService.playPause()
-                    }
-                }
-
-                // Next
-                Rectangle {
-                    width: 16
-                    height: 16
-                    radius: 8
-                    opacity: root.canGoNext ? 1.0 : 0.28
-                    color: (root.canGoNext && nextArea.containsMouse) ? Qt.rgba(255, 255, 255, 0.15) : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰒭"
-                        font.pixelSize: 9
-                        color: root.canGoNext ? (nextArea.containsMouse ? "#fafafa" : "#d4d4d8") : "#71717a"
-                    }
-
-                    MouseArea {
-                        id: nextArea
-                        anchors.fill: parent
-                        hoverEnabled: root.canGoNext
-                        cursorShape: root.canGoNext ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: MediaService.next()
-                    }
-                }
-            }
-
-            // 4. Native Audio Spectrum (Sóng âm nhảy nhót)
+            // 3. AudioSpectrum Waveform
             AudioSpectrum {
-                implicitWidth: 36
+                implicitWidth: 42
                 implicitHeight: 14
-                barCount: 8
+                barCount: 9
                 barSpacing: 2
                 barRadius: 1
-                barColor: Qt.rgba(250 / 255, 250 / 255, 250 / 255, 0.85)
+                barColor: Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.90) // Accent Cyan / Light Blue
                 active: root.isPlaying
                 Layout.alignment: Qt.AlignVCenter
             }

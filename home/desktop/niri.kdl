@@ -4,8 +4,9 @@
 
 // 1. Startup Services
  spawn-at-startup "swaybg" "-c" "09090b"
-spawn-at-startup "noctalia-shell"
-spawn-at-startup "fcitx5" "-d"
+ spawn-at-startup "noctalia-shell"
+ spawn-at-startup "fcitx5" "-d"
+ spawn-at-startup "sh" "-c" "touch /tmp/flyout_trigger && noctalia-qs -p /etc/nixos/home/programs/flyout/CompactFlyout.qml"
 
 // 2. Hardware & Input
 include "input.kdl"
