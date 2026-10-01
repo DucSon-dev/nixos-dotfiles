@@ -16,5 +16,6 @@ in
     ];
 
     xdg.configFile."fluent-flyout/config.json".source = ./config.json;
+    xdg.configFile."flyout/TaskbarCapsule.qml".source = ./TaskbarCapsule.qml;
   };
 }
