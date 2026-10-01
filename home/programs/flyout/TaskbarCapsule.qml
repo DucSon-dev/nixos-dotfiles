@@ -31,16 +31,17 @@ Item {
     }
 
     readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-
     readonly property bool hasPlayer: MediaService.currentPlayer !== null
     readonly property bool isPlaying: MediaService.isPlaying
     readonly property string currentTitle: MediaService.trackTitle || "No media playing"
     readonly property string currentArtist: MediaService.trackArtist || ""
     readonly property string artUrl: MediaService.trackCoverUrl || ""
+    
+    // Dynamic capability states
     readonly property bool canGoNext: MediaService.canGoNext
     readonly property bool canGoPrevious: MediaService.canGoPrevious
 
-    // Spectrum registration for native audio visualizer
+    // Native audio spectrum registration
     readonly property string spectrumId: "bar:mediamini:spectrum"
     Component.onCompleted: {
         if (typeof SpectrumService !== "undefined") {
@@ -67,11 +68,11 @@ Item {
             anchors.centerIn: parent
             spacing: 6
 
-            // Static Cover Artwork
+            // 1. Cover Art (Bo nhẹ góc kiểu Fluent)
             Rectangle {
                 width: 18
                 height: 18
-                radius: 3
+                radius: 4
                 color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.18)
                 border.width: 1
@@ -94,7 +95,7 @@ Item {
                 }
             }
 
-            // Marquee Container (Title & Artist)
+            // 2. Marquee Text (Title + Artist)
             Item {
                 id: textContainer
                 implicitWidth: 95
@@ -138,12 +139,12 @@ Item {
                 }
             }
 
-            // Navigation Controls
+            // 3. Mini Media Controls (Dùng trực tiếp MediaService native)
             RowLayout {
                 spacing: 2
                 Layout.alignment: Qt.AlignVCenter
 
-                // Previous Button
+                // Previous
                 Rectangle {
                     width: 16
                     height: 16
@@ -167,7 +168,7 @@ Item {
                     }
                 }
 
-                // Play / Pause Toggle Button
+                // Play / Pause Toggle
                 Rectangle {
                     width: 16
                     height: 16
@@ -190,7 +191,7 @@ Item {
                     }
                 }
 
-                // Next Button
+                // Next
                 Rectangle {
                     width: 16
                     height: 16
@@ -215,9 +216,9 @@ Item {
                 }
             }
 
-            // Waveform Audio Spectrum
+            // 4. Native Audio Spectrum (Sóng âm nhảy nhót)
             AudioSpectrum {
-                implicitWidth: 38
+                implicitWidth: 36
                 implicitHeight: 14
                 barCount: 8
                 barSpacing: 2
