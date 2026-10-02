@@ -104,7 +104,9 @@
     ./programs/zsh.nix
     ./programs/starship.nix
     ./programs/neovim.nix
+    ./programs/flyout
   ];
 
   programs.home-manager.enable = true;
+  programs.fluentFlyout.enable = true;
 }
