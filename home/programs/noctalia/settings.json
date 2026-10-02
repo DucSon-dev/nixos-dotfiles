@@ -94,7 +94,7 @@
           "id": "CustomButton",
           "icon": "music",
           "showIcon": true,
-          "textCommand": "playerctl metadata --format '{{xesam:title}}' 2>/dev/null || echo ''",
+          "textCommand": "",
           "textIntervalMs": 2000,
           "generalTooltipText": "Fluent Media Flyout",
           "showExecTooltip": false,

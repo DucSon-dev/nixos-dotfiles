@@ -2,10 +2,28 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
 
-Item {
+PanelWindow {
     id: root
+
+    // Layer-Shell surface configuration anchored to Top-Right
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+
+    anchors {
+        top: true
+        right: true
+    }
+
+    margins {
+        top: 6
+        right: 280
+    }
+
+    color: "transparent"
 
     // Component dimensions
     implicitHeight: 32
@@ -74,14 +92,14 @@ Item {
         metadataProcess.running = true;
     }
 
-    // Liquid Glass Capsule Container (shadcn Dark Zinc #09090b @ 0.72 opacity, 16px radius, 1px border)
+    // Liquid Glass Capsule Container (shadcn Dark Zinc #09090b @ 0.75 opacity, 16px radius, 1px border)
     Rectangle {
         id: capsuleBackground
         anchors.fill: parent
         implicitHeight: 32
         implicitWidth: contentLayout.implicitWidth + 20
         radius: 16
-        color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.72)
+        color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.75)
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
         border.width: 1
         clip: true
@@ -104,7 +122,7 @@ Item {
             anchors.centerIn: parent
             spacing: 6
 
-            // Album Artwork Thumbnail (22x22, 4px border radius per spec)
+            // Album Artwork Thumbnail (22x22px, 4px border radius per spec)
             Rectangle {
                 width: 22
                 height: 22
@@ -132,7 +150,7 @@ Item {
                 }
             }
 
-            // Two-Line Stacked Metadata (Title bold + Artist muted)
+            // Two-Line Stacked Metadata (Title bold + Artist muted 10px)
             ColumnLayout {
                 spacing: 0
                 Layout.alignment: Qt.AlignVCenter

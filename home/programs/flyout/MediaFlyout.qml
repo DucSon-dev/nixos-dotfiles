@@ -92,7 +92,7 @@ PanelWindow {
     // Central state transition handler
     function transitionTo(newState) {
         flyoutState = newState;
-        if (newState === "AUTO_POPPED" || newState === "MANUALLY_PINNED") {
+        if (newState === "AUTO_POPPED") {
             dismissTimer.restart();
         } else {
             dismissTimer.stop();
@@ -271,7 +271,7 @@ PanelWindow {
             hoverEnabled: true
             onEntered: dismissTimer.stop()
             onExited: {
-                if (flyoutWindow.flyoutVisible) {
+                if (flyoutWindow.flyoutState === "AUTO_POPPED") {
                     dismissTimer.restart();
                 }
             }
