@@ -92,6 +92,16 @@
       "right": [
         {
           "id": "CustomButton",
+          "icon": "music",
+          "showIcon": true,
+          "textCommand": "playerctl metadata --format '{{xesam:title}}' 2>/dev/null || echo ''",
+          "textIntervalMs": 2000,
+          "generalTooltipText": "Fluent Media Flyout",
+          "showExecTooltip": false,
+          "leftClickExec": "bash -c 'echo toggle | nc -U /tmp/fluent_flyout.sock 2>/dev/null || touch /tmp/fluent_flyout_trigger'"
+        },
+        {
+          "id": "CustomButton",
           "icon": "git-branch",
           "showIcon": true,
           "textCommand": "",
