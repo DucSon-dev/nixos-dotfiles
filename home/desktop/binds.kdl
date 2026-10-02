@@ -10,11 +10,11 @@ binds {
     Mod+Return { spawn "kitty"; }                                                      // Terminal (Fallback)
     Mod+Slash { spawn "bash" "/home/ducson/.config/noctalia/scripts/cheatsheet.sh"; }  // Toggle Cheat Sheet
     Mod+G { spawn "kitty" "--class" "git-tree-float" "--directory" "/etc/nixos" "-e" "lazygit"; } // Git Client (Lazygit)
-    Mod+O { spawn "libreoffice"; }                                                     // Office Suite (LibreOffice)
+    Mod+L { spawn "libreoffice"; }                                                     // Office Suite (LibreOffice)
+    Mod+O { spawn "obsidian"; }                                                        // Knowledge Base & Notes (Obsidian)
     Mod+P { spawn "keepassxc"; }                                                       // Password Manager (KeePassXC)
     Mod+M { spawn "amberol"; }                                                         // Music Player (Amberol)
-    Mod+Shift+M { spawn "bash" "/home/ducson/.config/noctalia/scripts/music-fetch.sh"; } // Fetch/Download Song to ~/Music   
-
+    Mod+Shift+M { spawn "bash" "/home/ducson/.config/noctalia/scripts/music-fetch.sh"; } // Fetch/Download Song to ~/Music
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE
@@ -50,7 +50,7 @@ binds {
     Mod+Down  { focus-window-down; }        // Focus Window Down
 
     Mod+H     { focus-column-left; }        // Focus Left (Vim)
-    Mod+L     { focus-column-right; }       // Focus Right (Vim)
+    // Mod+L  { focus-column-right; }       // Disabled to avoid conflict with LibreOffice
     Mod+K     { focus-window-up; }          // Focus Up (Vim)
     Mod+J     { focus-window-down; }        // Focus Down (Vim)
 

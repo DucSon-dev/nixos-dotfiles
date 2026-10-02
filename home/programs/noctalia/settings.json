@@ -1,134 +1,152 @@
 {
   "general": {
-    "avatarImage": "",
-    "compactLockScreen": false,
-    "dimUnfocusedMonitors": false,
-    "forceBlackScreen": false,
-    "lockScreenAnimations": true,
-    "radiusRatio": 1,
-    "screenRadius": 0,
+    "allowPanelsOnScreenWithoutBar": true,
+    "allowPasswordWithFprintd": false,
+    "animationDisabled": false,
+    "animationSpeed": 1.1,
+    "autoStartAuth": true,
+    "avatarImage": "/home/ducson/.face",
+    "boxRadiusRatio": 1.2,
+    "clockFormat": "HH:mm",
+    "clockStyle": "minimal",
+    "compactLockScreen": true,
+    "dimmerOpacity": 0.0,
+    "enableBlurBehind": true,
+    "enableLockScreenCountdown": false,
+    "enableLockScreenMediaControls": false,
+    "enableShadows": true,
+    "forceBlackScreenCorners": false,
+    "iRadiusRatio": 1.1,
+    "lockOnSuspend": true,
+    "lockScreenAnimations": false,
+    "lockScreenBlur": 24,
+    "lockScreenCountdownDuration": 0,
+    "lockScreenMonitors": [],
+    "lockScreenTint": 0.0,
+    "passwordChars": true,
+    "radiusRatio": 1.2,
+    "reverseScroll": false,
+    "scaleRatio": 1,
+    "screenRadiusRatio": 1,
+    "shadowDirection": "bottom_right",
+    "shadowOffsetX": 0,
+    "shadowOffsetY": 4,
+    "showChangelogOnStartup": false,
+    "showHibernateOnLockScreen": false,
     "showScreenCorners": false,
+    "showSessionButtonsOnLockScreen": false,
+    "smoothScrollEnabled": true,
     "telemetryEnabled": false
   },
+  "desktopWidgets": {
+    "enabled": false,
+    "gridSnap": false,
+    "gridSnapScale": false,
+    "monitorWidgets": [],
+    "overviewEnabled": false
+  },
   "bar": {
-    "autoHide": "never",
-    "backgroundBlur": true,
-    "backgroundColor": "#09090b",
-    "backgroundOpacity": 0.85,
-    "border": true,
-    "borderColor": "#ffffff1a",
-    "borderWidth": 1,
-    "density": "comfortable",
-    "fontFamily": "Geist",
-    "fontSize": 11,
-    "frameMargin": 0,
-    "frameRadius": 0,
-    "frameThickness": 36,
-    "innerRadius": 0,
-    "location": "top",
-    "margin": 0,
-    "outerRadius": 0,
+    "autoHideDelay": 500,
+    "autoShowDelay": 150,
+    "backgroundOpacity": 0.78,
+    "barType": "floating",
+    "capsuleColorKey": "none",
+    "capsuleOpacity": 0.88,
+    "contentPadding": 3,
+    "density": "compact",
+    "displayMode": "always_visible",
+    "enableExclusionZoneInset": true,
+    "fontScale": 1,
+    "frameRadius": 16,
+    "frameThickness": 6,
+    "hideOnOverview": false,
+    "marginHorizontal": 12,
+    "marginVertical": 8,
+    "middleClickAction": "none",
+    "mouseWheelAction": "none",
+    "outerCorners": false,
     "position": "top",
-    "screenOffsets": {},
-    "stretchToFit": true,
-    "useScreenRadius": false,
+    "reverseScroll": false,
+    "rightClickAction": "controlCenter",
+    "rightClickFollowMouse": true,
+    "showCapsule": true,
+    "showOnWorkspaceSwitch": true,
+    "showOutline": true,
+    "useSeparateOpacity": false,
+    "widgetSpacing": 8,
     "widgets": {
       "left": [
         {
           "id": "Launcher",
           "icon": "rocket",
           "enableColorization": false
-        },
-        {
-          "id": "ActiveWindow",
-          "maxWidth": 180,
-          "showIcon": true,
-          "showText": true,
-          "hideMode": "hidden"
         }
       ],
       "center": [
         {
           "id": "Workspace",
-          "enableColorization": true
+          "hideUnoccupied": false,
+          "showBadge": true
         }
       ],
       "right": [
         {
-          "id": "MediaMini",
-          "showAlbumArt": true,
-          "showVisualizer": true,
-          "visualizerType": "bars",
-          "scrollingMode": "always",
-          "maxWidth": 260
+          "id": "MediaMini"
         },
         {
           "id": "CustomButton",
           "icon": "git-branch",
-          "action": "system-tree.sh"
+          "showIcon": true,
+          "textCommand": "",
+          "generalTooltipText": "System Architecture & Topology",
+          "showExecTooltip": false,
+          "leftClickExec": "bash -c 'nohup /home/ducson/.config/noctalia/scripts/system-tree.sh >/dev/null 2>&1 &'"
+        },
+        {
+          "id": "SystemMonitor",
+          "compactMode": true,
+          "showCpuUsage": true,
+          "showMemoryUsage": false,
+          "showCpuTemp": false
+        },
+        {
+          "id": "Network"
         },
         {
           "id": "Volume",
-          "showIcon": true,
-          "showPercentage": false
+          "displayMode": "onhover"
         },
         {
           "id": "Clock",
-          "format": "hh:mm · ddd, MMM d"
+          "formatHorizontal": "HH:mm  ·  ddd, MMM dd"
+        },
+        {
+          "id": "ControlCenter",
+          "icon": "noctalia"
         }
       ]
     }
   },
-  "colorScheme": {
-    "accent": "#fafafa",
-    "background": "#09090b",
-    "card": "#18181b",
-    "generationMethod": "monochrome",
-    "mode": "dark",
-    "name": "dark-zinc",
-    "predefinedScheme": "Zinc"
+  "colorSchemes": {
+    "darkMode": true,
+    "generationMethod": "tonal-spot",
+    "predefinedScheme": "Monochrome",
+    "schedulingMode": "off",
+    "syncGsettings": true,
+    "useWallpaperColors": false
   },
-  "dock": {
-    "autoHide": "never",
-    "backgroundBlur": true,
-    "backgroundColor": "#09090b",
-    "backgroundOpacity": 0.85,
-    "enabled": false,
-    "pinnedApps": []
-  },
-  "wallpaper": {
-    "directory": "/home/ducson/Pictures/Wallpapers/monochrome-topo",
-    "enabled": true,
-    "fillMode": "crop",
-    "interval": 300,
-    "mode": "single",
-    "monitors": {},
-    "overviewFillMode": "crop",
-    "panelPath": ""
-  },
-  "templates": {
-    "activeTemplates": []
-  },
-  "network": {
-    "showStrength": true
-  },
-  "audio": {
-    "volumeStep": 5
-  },
-  "bluetooth": {
-    "autoConnect": true
-  },
-  "notifications": {
-    "criticalInDnd": true,
-    "dnd": false,
-    "history": true,
-    "location": "top-right",
-    "sound": false,
-    "timeout": 5000
-  },
-  "osd": {
-    "enabled": true,
-    "location": "bottom",
-    "timeout": 2000
+  "ui": {
+    "boxBorderEnabled": true,
+    "fontDefault": "Geist",
+    "fontDefaultScale": 1.0,
+    "fontFixed": "GeistMono Nerd Font",
+    "fontFixedScale": 1.0,
+    "panelBackgroundOpacity": 0.85,
+    "panelsAttachedToBar": true,
+    "scrollbarAlwaysVisible": false,
+    "settingsPanelMode": "attached",
+    "settingsPanelSideBarCardStyle": true,
+    "tooltipsEnabled": true,
+    "translucentWidgets": true
   }
 }

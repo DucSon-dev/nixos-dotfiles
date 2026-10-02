@@ -22,7 +22,9 @@
     lazygit
     nautilus
     
-
+    # Knowledge Base & Note Taking
+    obsidian
+    
     # Media & Audio
     amberol
     playerctl
