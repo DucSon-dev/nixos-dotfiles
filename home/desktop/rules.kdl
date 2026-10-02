@@ -61,3 +61,11 @@ window-rule {
     match app-id="^anki$" title="^Edit Current$"
     open-floating true
 }
+
+// Antigravity IDE Window Rule
+window-rule {
+    match app-id="^antigravity(-ide)?$"
+    default-column-width { proportion 0.85; }
+    geometry-corner-radius 16
+    clip-to-geometry true
+}

@@ -1,1 +1,7 @@
 home/desktop/outputs.kdl
+*.key
+*.token
+*.secret
+*.kdbx
+.env
+.agent_*

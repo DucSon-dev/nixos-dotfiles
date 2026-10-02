@@ -22,7 +22,9 @@
     lazygit
     nautilus
     
-
+    # AI & Agentic Development
+    antigravity-fhs
+   
     # Media & Audio
     amberol
     playerctl
