@@ -63,6 +63,10 @@
    papirus-icon-theme
    vanilla-dmz
    
+   # Code-Graph & Nix Language Analysis Engine
+    nil
+    graphviz
+   
    # GTK / Libadwaita GSettings & Schema Tooling
     glib
     gsettings-desktop-schemas   
