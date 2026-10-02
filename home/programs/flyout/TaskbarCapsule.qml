@@ -9,14 +9,14 @@ Scope {
     id: root
 
     // Shared MPRIS media properties across all screen instances
-    property string trackTitle: "No Media"
+    property string trackTitle: ""
     property string trackArtist: ""
     property string artUrl: ""
     property string playbackStatus: "Stopped"
     property string playerName: ""
 
     readonly property bool isPlaying: playbackStatus === "Playing"
-    readonly property bool hasMedia: trackTitle !== "" && trackTitle !== "No Media"
+    readonly property bool hasMedia: trackTitle !== "" && trackTitle !== "No Media" && trackTitle !== "__STOPPED__"
 
     // Mutual exclusivity coordination: collapsed when large flyout is open
     property bool expanded: false
@@ -25,31 +25,56 @@ Scope {
     signal toggleRequested()
     signal toggleFlyoutRequested()
 
-    // Shared polling process to extract MPRIS media metadata
+    // Shared polling process to extract active MPRIS media metadata
     Process {
         id: metadataProcess
-        command: ["playerctl", "metadata", "--format", "{{xesam:title}}|||{{xesam:artist}}|||{{mpris:artUrl}}|||{{status}}|||{{playerName}}"]
+        command: ["sh", "-c", "STATUS=$(playerctl status 2>/dev/null || echo 'Stopped'); if [ \"$STATUS\" != 'Playing' ]; then echo '__STOPPED__'; else playerctl metadata --format '{{xesam:title}}|||{{xesam:artist}}|||{{mpris:artUrl}}|||{{status}}|||{{playerName}}' 2>/dev/null || echo '__STOPPED__'; fi"]
         stdout: SplitParser {
             onRead: data => {
                 var line = data.trim();
-                if (line !== "") {
-                    var parts = line.split("|||");
-                    if (parts.length >= 4) {
-                        var parsedTitle = parts[0].trim();
-                        root.trackTitle = parsedTitle !== "" ? parsedTitle : "No Media";
-                        root.trackArtist = parts[1].trim();
-                        root.artUrl = parts[2].trim();
-                        root.playbackStatus = parts[3].trim();
-                        if (parts.length >= 5) {
-                            root.playerName = parts[4].trim();
-                        }
-                    }
-                } else {
-                    root.trackTitle = "No Media";
+                if (line === "__STOPPED__" || line === "" || line === "No players found") {
+                    root.trackTitle = "";
                     root.trackArtist = "";
                     root.artUrl = "";
                     root.playbackStatus = "Stopped";
+                    root.playerName = "";
+                    return;
                 }
+                var parts = line.split("|||");
+                if (parts.length >= 4) {
+                    var parsedStatus = parts[3].trim();
+                    if (parsedStatus !== "Playing") {
+                        root.trackTitle = "";
+                        root.trackArtist = "";
+                        root.artUrl = "";
+                        root.playbackStatus = "Stopped";
+                        root.playerName = "";
+                        return;
+                    }
+                    var parsedTitle = parts[0].trim();
+                    root.trackTitle = parsedTitle !== "" ? parsedTitle : "";
+                    root.trackArtist = parts[1].trim();
+                    root.artUrl = parts[2].trim();
+                    root.playbackStatus = parsedStatus;
+                    if (parts.length >= 5) {
+                        root.playerName = parts[4].trim();
+                    }
+                } else {
+                    root.trackTitle = "";
+                    root.trackArtist = "";
+                    root.artUrl = "";
+                    root.playbackStatus = "Stopped";
+                    root.playerName = "";
+                }
+            }
+        }
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode !== 0) {
+                root.trackTitle = "";
+                root.trackArtist = "";
+                root.artUrl = "";
+                root.playbackStatus = "Stopped";
+                root.playerName = "";
             }
         }
     }
@@ -81,10 +106,14 @@ Scope {
                 required property var modelData
                 screen: modelData
 
-                // Layer-Shell configuration: Top layer floating island
+                // Layer-Shell configuration: Top layer movable floating island
                 WlrLayershell.layer: WlrLayer.Top
                 WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
                 exclusionMode: ExclusionMode.Ignore
+
+                // Interactive drag coordinates (default offset avoids window close buttons)
+                property int dragMarginTop: 54
+                property int dragMarginRight: 80
 
                 anchors {
                     top: true
@@ -92,8 +121,8 @@ Scope {
                 }
 
                 margins {
-                    top: 42
-                    right: 16
+                    top: capsuleWindow.dragMarginTop
+                    right: capsuleWindow.dragMarginRight
                 }
 
                 color: "transparent"
@@ -126,15 +155,50 @@ Scope {
                         }
                     }
 
-                    // Click action dispatches toggle trigger to /tmp/fluent_flyout_trigger
+                    // Interactive drag & click MouseArea
                     MouseArea {
                         id: capsuleClickArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.toggleFlyoutRequested();
-                            Quickshell.execDetached(["sh", "-c", "echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger"]);
+                        cursorShape: isDragging ? Qt.ClosedHandCursor : Qt.PointingHandCursor
+                        acceptedButtons: Qt.LeftButton
+
+                        property real startMouseX: 0
+                        property real startMouseY: 0
+                        property real startMarginTop: 54
+                        property real startMarginRight: 80
+                        property bool isDragging: false
+
+                        onPressed: mouse => {
+                            startMouseX = mouse.x;
+                            startMouseY = mouse.y;
+                            startMarginTop = capsuleWindow.dragMarginTop;
+                            startMarginRight = capsuleWindow.dragMarginRight;
+                            isDragging = false;
+                        }
+
+                        onPositionChanged: mouse => {
+                            if (pressed) {
+                                var deltaX = mouse.x - startMouseX;
+                                var deltaY = mouse.y - startMouseY;
+                                if (!isDragging && (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4)) {
+                                    isDragging = true;
+                                }
+                                if (isDragging) {
+                                    capsuleWindow.dragMarginRight = Math.max(0, startMarginRight - deltaX);
+                                    capsuleWindow.dragMarginTop = Math.max(0, startMarginTop + deltaY);
+                                }
+                            }
+                        }
+
+                        onReleased: mouse => {
+                            if (!isDragging) {
+                                root.toggleRequested();
+                                root.toggleFlyoutRequested();
+                                // Trigger IPC endpoint: /tmp/fluent_flyout_trigger
+                                Quickshell.execDetached(["sh", "-c", "echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger"]);
+                            }
+                            isDragging = false;
                         }
                     }
 
