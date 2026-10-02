@@ -18,7 +18,11 @@ Scope {
     readonly property bool isPlaying: playbackStatus === "Playing"
     readonly property bool hasMedia: trackTitle !== "" && trackTitle !== "No Media"
 
-    // Signal to notify parent or external listeners to toggle flyout
+    // Mutual exclusivity coordination: collapsed when large flyout is open
+    property bool expanded: false
+
+    // Signals to notify parent or external listeners to toggle flyout
+    signal toggleRequested()
     signal toggleFlyoutRequested()
 
     // Shared polling process to extract MPRIS media metadata
@@ -98,8 +102,8 @@ Scope {
                 implicitHeight: 32
                 implicitWidth: capsuleBackground.implicitWidth
 
-                // Window visibility strictly managed via active media state
-                visible: root.hasMedia && root.isPlaying
+                // Window visibility strictly managed via active media state and mutual exclusivity
+                visible: root.hasMedia && root.isPlaying && !root.expanded
 
                 // Liquid Glass Floating Island Body (#09090b @ 0.85 opacity, 16px radius)
                 Rectangle {
@@ -114,7 +118,7 @@ Scope {
                     clip: true
 
                     // Smooth opacity fade on inner container
-                    opacity: (root.hasMedia && root.isPlaying) ? 1.0 : 0.0
+                    opacity: (root.hasMedia && root.isPlaying && !root.expanded) ? 1.0 : 0.0
                     Behavior on opacity {
                         NumberAnimation {
                             duration: 200

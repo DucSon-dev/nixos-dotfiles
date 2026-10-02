@@ -19,8 +19,8 @@ PanelWindow {
     }
 
     margins {
-        top: 48
-        right: 280
+        top: 42
+        right: 16
     }
 
     implicitWidth: 380
@@ -37,6 +37,20 @@ PanelWindow {
 
     // Derived visibility from state machine (replaces old flyoutVisible bool)
     readonly property bool flyoutVisible: flyoutState === "AUTO_POPPED" || flyoutState === "MANUALLY_PINNED"
+
+    // Coordination with TaskbarCapsule Dynamic Island
+    property bool isOpen: false
+    signal closeRequested()
+    signal openRequested()
+
+    onIsOpenChanged: {
+        if (isOpen && !flyoutVisible) {
+            refreshMedia();
+            transitionTo("MANUALLY_PINNED");
+        } else if (!isOpen && flyoutVisible) {
+            transitionTo("HIDDEN");
+        }
+    }
     visible: card.opacity > 0.0
 
     // Media properties
@@ -96,6 +110,11 @@ PanelWindow {
             dismissTimer.restart();
         } else {
             dismissTimer.stop();
+        }
+        if (flyoutVisible) {
+            if (!isOpen) openRequested();
+        } else {
+            if (isOpen) closeRequested();
         }
     }
 
