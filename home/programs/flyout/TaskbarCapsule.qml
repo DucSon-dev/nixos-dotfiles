@@ -5,35 +5,11 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 
-PanelWindow {
+Variants {
     id: root
+    model: Quickshell.screens
 
-    // Layer-Shell surface configuration anchored to Top-Right
-    WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    exclusionMode: ExclusionMode.Ignore
-
-    anchors {
-        top: true
-        right: true
-    }
-
-    margins {
-        top: 4
-        right: 280
-    }
-
-    color: "transparent"
-
-    // Micro-Geometry Tokens: Exactly 26px height
-    implicitHeight: 26
-    implicitWidth: visible ? capsuleBackground.implicitWidth : 0
-
-    // Capsule intelligence: auto-hide when no media players are active
-    property bool hideWhenEmpty: true
-    visible: hideWhenEmpty ? hasMedia : true
-
-    // Media properties
+    // Shared MPRIS media properties across all screen instances
     property string trackTitle: "No Media"
     property string trackArtist: ""
     property string artUrl: ""
@@ -46,7 +22,7 @@ PanelWindow {
     // Signal to notify parent or external listeners to toggle flyout
     signal toggleFlyoutRequested()
 
-    // Polling process to extract MPRIS media metadata
+    // Shared polling process to extract MPRIS media metadata
     Process {
         id: metadataProcess
         command: ["playerctl", "metadata", "--format", "{{xesam:title}}|||{{xesam:artist}}|||{{mpris:artUrl}}|||{{status}}|||{{playerName}}"]
@@ -92,226 +68,266 @@ PanelWindow {
         metadataProcess.running = true;
     }
 
-    // Liquid Glass Capsule Container (Height 26px, Radius 13px pill squircle, Dark Zinc #09090b @ 0.75)
-    Rectangle {
-        id: capsuleBackground
-        anchors.fill: parent
-        implicitHeight: 26
-        implicitWidth: contentLayout.implicitWidth + 16
-        radius: 13
-        color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.75)
-        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-        border.width: 1
-        clip: true
+    // Per-Screen Dynamic Floating Media Island Delegate
+    delegate: Component {
+        PanelWindow {
+            id: capsuleWindow
+            screen: modelData
 
-        // Non-blocking monotonic counter trigger IPC
-        MouseArea {
-            id: capsuleClickArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                root.toggleFlyoutRequested();
-                Quickshell.execDetached(["sh", "-c", "echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger"]);
+            // Layer-Shell configuration: Top layer floating island
+            WlrLayershell.layer: WlrLayer.Top
+            WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+            exclusionMode: ExclusionMode.Ignore
+
+            anchors {
+                top: true
+                right: true
             }
-        }
 
-        RowLayout {
-            id: contentLayout
-            anchors.centerIn: parent
-            spacing: 5
+            margins {
+                top: 42
+                right: 16
+            }
 
-            // Album Artwork Thumbnail (18x18px, 3px border radius per spec)
+            color: "transparent"
+
+            // Target Micro-Geometry Tokens: Height 32px, Radius 16px
+            implicitHeight: 32
+            implicitWidth: capsuleBackground.implicitWidth
+
+            // Auto-Visibility: Visible only when media is actively playing
+            opacity: (root.hasMedia && root.isPlaying) ? 1.0 : 0.0
+            visible: opacity > 0.0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            // Liquid Glass Floating Island Body (#09090b @ 0.85 opacity, 16px radius)
             Rectangle {
-                width: 18
-                height: 18
-                radius: 3
-                color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
-                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
+                id: capsuleBackground
+                anchors.fill: parent
+                implicitHeight: 32
+                implicitWidth: contentLayout.implicitWidth + 20
+                radius: 16
+                color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.85)
+                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                 border.width: 1
                 clip: true
-                Layout.alignment: Qt.AlignVCenter
 
-                Image {
+                // Click action dispatches toggle trigger to /tmp/fluent_flyout_trigger
+                MouseArea {
+                    id: capsuleClickArea
                     anchors.fill: parent
-                    source: root.artUrl
-                    fillMode: Image.PreserveAspectCrop
-                    visible: root.artUrl !== ""
-                    smooth: true
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        root.toggleFlyoutRequested();
+                        Quickshell.execDetached(["sh", "-c", "echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger"]);
+                    }
                 }
 
-                Text {
+                RowLayout {
+                    id: contentLayout
                     anchors.centerIn: parent
-                    text: "󰎆"
-                    color: root.isPlaying ? "#38bdf8" : "#71717a"
-                    font.pixelSize: 9
-                    visible: root.artUrl === ""
-                }
-            }
+                    spacing: 6
 
-            // Two-Line Stacked Typography (Title 10px bold, Artist 9px muted, max width 95px)
-            ColumnLayout {
-                spacing: 0
-                Layout.alignment: Qt.AlignVCenter
-                Layout.maximumWidth: 95
-
-                // Line 1: Track Title (Geist Bold 10px, truncated)
-                Text {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 95
-                    text: root.trackTitle
-                    font.family: "Geist"
-                    font.pixelSize: 10
-                    font.weight: Font.Bold
-                    color: "#fafafa"
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                }
-
-                // Line 2: Artist Name (Geist Regular 9px, #a1a1aa)
-                Text {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 95
-                    text: root.trackArtist !== "" ? root.trackArtist : root.playerName
-                    font.family: "Geist"
-                    font.pixelSize: 9
-                    color: "#a1a1aa"
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    visible: root.trackArtist !== "" || root.playerName !== ""
-                }
-            }
-
-            // Inline Playback Controls (Buttons 16x16px, Icons 8px)
-            RowLayout {
-                id: controlsRow
-                spacing: 2
-                Layout.alignment: Qt.AlignVCenter
-
-                // Previous Button (16x16px, icon 8px)
-                Rectangle {
-                    width: 16
-                    height: 16
-                    radius: 8
-                    color: prevMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.18) : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰒮"
-                        font.pixelSize: 8
-                        color: "#fafafa"
-                    }
-
-                    MouseArea {
-                        id: prevMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            Quickshell.execDetached(["playerctl", "previous"]);
-                            metadataProcess.running = true;
-                        }
-                    }
-                }
-
-                // Play / Pause Toggle Button (16x16px, icon 8px)
-                Rectangle {
-                    width: 16
-                    height: 16
-                    radius: 8
-                    color: playMouse.containsMouse ? Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.35) : Qt.rgba(1.0, 1.0, 1.0, 0.12)
-                    border.color: root.isPlaying ? Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.5) : "transparent"
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: root.isPlaying ? "󰏤" : "󰐊"
-                        font.pixelSize: 8
-                        color: root.isPlaying ? "#38bdf8" : "#fafafa"
-                    }
-
-                    MouseArea {
-                        id: playMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            Quickshell.execDetached(["playerctl", "play-pause"]);
-                            metadataProcess.running = true;
-                        }
-                    }
-                }
-
-                // Next Button (16x16px, icon 8px)
-                Rectangle {
-                    width: 16
-                    height: 16
-                    radius: 8
-                    color: nextMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.18) : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "󰒭"
-                        font.pixelSize: 8
-                        color: "#fafafa"
-                    }
-
-                    MouseArea {
-                        id: nextMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            Quickshell.execDetached(["playerctl", "next"]);
-                            metadataProcess.running = true;
-                        }
-                    }
-                }
-            }
-
-            // Dynamic Audio Wave Spectrum Visualizer (4 bars, width 2px, max 10px, min 3px)
-            Row {
-                id: visualizerRow
-                spacing: 2
-                Layout.alignment: Qt.AlignVCenter
-                visible: root.isPlaying
-
-                Repeater {
-                    model: 4
-
+                    // Album Artwork Thumbnail (22x22px, 4px border radius)
                     Rectangle {
-                        id: waveBar
-                        width: 2
-                        radius: 1
-                        color: "#38bdf8"
-                        anchors.verticalCenter: parent.verticalCenter
+                        width: 22
+                        height: 22
+                        radius: 4
+                        color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
+                        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
+                        border.width: 1
+                        clip: true
+                        Layout.alignment: Qt.AlignVCenter
 
-                        property real phase: index * 0.7
-                        property real baseHeight: 3
-                        property real maxHeight: 10
+                        Image {
+                            anchors.fill: parent
+                            source: root.artUrl
+                            fillMode: Image.PreserveAspectCrop
+                            visible: root.artUrl !== ""
+                            smooth: true
+                        }
 
-                        height: root.isPlaying ? baseHeight : 2
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰎆"
+                            color: root.isPlaying ? "#38bdf8" : "#71717a"
+                            font.pixelSize: 11
+                            visible: root.artUrl === ""
+                        }
+                    }
 
-                        SequentialAnimation on height {
-                            id: pulseAnim
-                            running: root.isPlaying
-                            loops: Animation.Infinite
+                    // Two-Line Stacked Typography (Title 10px bold, Artist 9px muted)
+                    ColumnLayout {
+                        spacing: 0
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.maximumWidth: 100
 
-                            NumberAnimation {
-                                to: waveBar.maxHeight - (index % 2 === 0 ? 0 : 2)
-                                duration: 280 + index * 80
-                                easing.type: Easing.InOutSine
+                        // Line 1: Track Title (Geist Bold 10px, truncated)
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.maximumWidth: 100
+                            text: root.trackTitle
+                            font.family: "Geist"
+                            font.pixelSize: 10
+                            font.weight: Font.Bold
+                            color: "#fafafa"
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
+                        }
+
+                        // Line 2: Artist Name (Geist Regular 9px, #a1a1aa)
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.maximumWidth: 100
+                            text: root.trackArtist !== "" ? root.trackArtist : root.playerName
+                            font.family: "Geist"
+                            font.pixelSize: 9
+                            color: "#a1a1aa"
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
+                            visible: root.trackArtist !== "" || root.playerName !== ""
+                        }
+                    }
+
+                    // Inline Playback Controls (Previous, Play/Pause, Next)
+                    RowLayout {
+                        id: controlsRow
+                        spacing: 2
+                        Layout.alignment: Qt.AlignVCenter
+
+                        // Previous Button (20x20px, icon 10px)
+                        Rectangle {
+                            width: 20
+                            height: 20
+                            radius: 10
+                            color: prevMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.18) : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "󰒮"
+                                font.pixelSize: 10
+                                color: "#fafafa"
                             }
-                            NumberAnimation {
-                                to: waveBar.baseHeight + (index % 3 === 0 ? 1 : 0)
-                                duration: 320 + index * 60
-                                easing.type: Easing.InOutSine
+
+                            MouseArea {
+                                id: prevMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    Quickshell.execDetached(["playerctl", "previous"]);
+                                    metadataProcess.running = true;
+                                }
                             }
                         }
 
-                        Behavior on height {
-                            enabled: !root.isPlaying
-                            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                        // Play / Pause Toggle Button (20x20px, icon 10px)
+                        Rectangle {
+                            width: 20
+                            height: 20
+                            radius: 10
+                            color: playMouse.containsMouse ? Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.35) : Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                            border.color: root.isPlaying ? Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.5) : "transparent"
+                            border.width: 1
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: root.isPlaying ? "󰏤" : "󰐊"
+                                font.pixelSize: 10
+                                color: root.isPlaying ? "#38bdf8" : "#fafafa"
+                            }
+
+                            MouseArea {
+                                id: playMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    Quickshell.execDetached(["playerctl", "play-pause"]);
+                                    metadataProcess.running = true;
+                                }
+                            }
+                        }
+
+                        // Next Button (20x20px, icon 10px)
+                        Rectangle {
+                            width: 20
+                            height: 20
+                            radius: 10
+                            color: nextMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.18) : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "󰒭"
+                                font.pixelSize: 10
+                                color: "#fafafa"
+                            }
+
+                            MouseArea {
+                                id: nextMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    Quickshell.execDetached(["playerctl", "next"]);
+                                    metadataProcess.running = true;
+                                }
+                            }
+                        }
+                    }
+
+                    // 4-Bar Dynamic Audio Wave Spectrum Visualizer
+                    Row {
+                        id: visualizerRow
+                        spacing: 2
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: root.isPlaying
+
+                        Repeater {
+                            model: 4
+
+                            Rectangle {
+                                id: waveBar
+                                width: 2
+                                radius: 1
+                                color: "#38bdf8"
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                property real phase: index * 0.7
+                                property real baseHeight: 3
+                                property real maxHeight: 12
+
+                                height: root.isPlaying ? baseHeight : 2
+
+                                SequentialAnimation on height {
+                                    id: pulseAnim
+                                    running: root.isPlaying
+                                    loops: Animation.Infinite
+
+                                    NumberAnimation {
+                                        to: waveBar.maxHeight - (index % 2 === 0 ? 0 : 3)
+                                        duration: 280 + index * 80
+                                        easing.type: Easing.InOutSine
+                                    }
+                                    NumberAnimation {
+                                        to: waveBar.baseHeight + (index % 3 === 0 ? 2 : 0)
+                                        duration: 320 + index * 60
+                                        easing.type: Easing.InOutSine
+                                    }
+                                }
+
+                                Behavior on height {
+                                    enabled: !root.isPlaying
+                                    NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                                }
+                            }
                         }
                     }
                 }
