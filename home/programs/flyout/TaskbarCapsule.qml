@@ -19,14 +19,14 @@ PanelWindow {
     }
 
     margins {
-        top: 6
+        top: 4
         right: 280
     }
 
     color: "transparent"
 
-    // Component dimensions
-    implicitHeight: 32
+    // Micro-Geometry Tokens: Exactly 26px height
+    implicitHeight: 26
     implicitWidth: visible ? capsuleBackground.implicitWidth : 0
 
     // Capsule intelligence: auto-hide when no media players are active
@@ -92,19 +92,19 @@ PanelWindow {
         metadataProcess.running = true;
     }
 
-    // Liquid Glass Capsule Container (shadcn Dark Zinc #09090b @ 0.75 opacity, 16px radius, 1px border)
+    // Liquid Glass Capsule Container (Height 26px, Radius 13px pill squircle, Dark Zinc #09090b @ 0.75)
     Rectangle {
         id: capsuleBackground
         anchors.fill: parent
-        implicitHeight: 32
-        implicitWidth: contentLayout.implicitWidth + 20
-        radius: 16
+        implicitHeight: 26
+        implicitWidth: contentLayout.implicitWidth + 16
+        radius: 13
         color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.75)
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
         border.width: 1
         clip: true
 
-        // Click action on capsule body toggles the Media Flyout via monotonic counter IPC
+        // Non-blocking monotonic counter trigger IPC
         MouseArea {
             id: capsuleClickArea
             anchors.fill: parent
@@ -112,7 +112,6 @@ PanelWindow {
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 root.toggleFlyoutRequested();
-                // Monotonic counter increment: non-blocking, no socket dependency
                 Quickshell.execDetached(["sh", "-c", "echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger"]);
             }
         }
@@ -120,13 +119,13 @@ PanelWindow {
         RowLayout {
             id: contentLayout
             anchors.centerIn: parent
-            spacing: 6
+            spacing: 5
 
-            // Album Artwork Thumbnail (22x22px, 4px border radius per spec)
+            // Album Artwork Thumbnail (18x18px, 3px border radius per spec)
             Rectangle {
-                width: 22
-                height: 22
-                radius: 4
+                width: 18
+                height: 18
+                radius: 3
                 color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
                 border.width: 1
@@ -145,37 +144,37 @@ PanelWindow {
                     anchors.centerIn: parent
                     text: "󰎆"
                     color: root.isPlaying ? "#38bdf8" : "#71717a"
-                    font.pixelSize: 11
+                    font.pixelSize: 9
                     visible: root.artUrl === ""
                 }
             }
 
-            // Two-Line Stacked Metadata (Title bold + Artist muted 10px)
+            // Two-Line Stacked Typography (Title 10px bold, Artist 9px muted, max width 95px)
             ColumnLayout {
                 spacing: 0
                 Layout.alignment: Qt.AlignVCenter
-                Layout.maximumWidth: 110
+                Layout.maximumWidth: 95
 
-                // Line 1: Track Title (bold white, truncated with ellipsis)
+                // Line 1: Track Title (Geist Bold 10px, truncated)
                 Text {
                     Layout.fillWidth: true
-                    Layout.maximumWidth: 110
+                    Layout.maximumWidth: 95
                     text: root.trackTitle
                     font.family: "Geist"
-                    font.pixelSize: 11
+                    font.pixelSize: 10
                     font.weight: Font.Bold
                     color: "#fafafa"
                     elide: Text.ElideRight
                     maximumLineCount: 1
                 }
 
-                // Line 2: Artist Name (muted zinc-400, 10px)
+                // Line 2: Artist Name (Geist Regular 9px, #a1a1aa)
                 Text {
                     Layout.fillWidth: true
-                    Layout.maximumWidth: 110
+                    Layout.maximumWidth: 95
                     text: root.trackArtist !== "" ? root.trackArtist : root.playerName
                     font.family: "Geist"
-                    font.pixelSize: 10
+                    font.pixelSize: 9
                     color: "#a1a1aa"
                     elide: Text.ElideRight
                     maximumLineCount: 1
@@ -183,23 +182,23 @@ PanelWindow {
                 }
             }
 
-            // Inline Playback Controls (Previous, Play/Pause, Next)
+            // Inline Playback Controls (Buttons 16x16px, Icons 8px)
             RowLayout {
                 id: controlsRow
                 spacing: 2
                 Layout.alignment: Qt.AlignVCenter
 
-                // Previous Button
+                // Previous Button (16x16px, icon 8px)
                 Rectangle {
-                    width: 20
-                    height: 20
-                    radius: 10
+                    width: 16
+                    height: 16
+                    radius: 8
                     color: prevMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.18) : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: "󰒮"
-                        font.pixelSize: 10
+                        font.pixelSize: 8
                         color: "#fafafa"
                     }
 
@@ -215,11 +214,11 @@ PanelWindow {
                     }
                 }
 
-                // Play / Pause Toggle Button
+                // Play / Pause Toggle Button (16x16px, icon 8px)
                 Rectangle {
-                    width: 22
-                    height: 22
-                    radius: 11
+                    width: 16
+                    height: 16
+                    radius: 8
                     color: playMouse.containsMouse ? Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.35) : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.color: root.isPlaying ? Qt.rgba(56 / 255, 189 / 255, 248 / 255, 0.5) : "transparent"
                     border.width: 1
@@ -227,7 +226,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: root.isPlaying ? "󰏤" : "󰐊"
-                        font.pixelSize: 10
+                        font.pixelSize: 8
                         color: root.isPlaying ? "#38bdf8" : "#fafafa"
                     }
 
@@ -243,17 +242,17 @@ PanelWindow {
                     }
                 }
 
-                // Next Button
+                // Next Button (16x16px, icon 8px)
                 Rectangle {
-                    width: 20
-                    height: 20
-                    radius: 10
+                    width: 16
+                    height: 16
+                    radius: 8
                     color: nextMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.18) : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: "󰒭"
-                        font.pixelSize: 10
+                        font.pixelSize: 8
                         color: "#fafafa"
                     }
 
@@ -270,7 +269,7 @@ PanelWindow {
                 }
             }
 
-            // Simulated Audio Spectrum Wave Visualizer (4 animated bars)
+            // Dynamic Audio Wave Spectrum Visualizer (4 bars, width 2px, max 10px, min 3px)
             Row {
                 id: visualizerRow
                 spacing: 2
@@ -287,32 +286,29 @@ PanelWindow {
                         color: "#38bdf8"
                         anchors.verticalCenter: parent.verticalCenter
 
-                        // Each bar has a unique phase offset for organic wave motion
                         property real phase: index * 0.7
-                        property real baseHeight: 4
-                        property real maxHeight: 14
+                        property real baseHeight: 3
+                        property real maxHeight: 10
 
-                        height: root.isPlaying ? baseHeight : 3
+                        height: root.isPlaying ? baseHeight : 2
 
-                        // Continuous pulsing animation when playing
                         SequentialAnimation on height {
                             id: pulseAnim
                             running: root.isPlaying
                             loops: Animation.Infinite
 
                             NumberAnimation {
-                                to: waveBar.maxHeight - (index % 2 === 0 ? 0 : 4)
+                                to: waveBar.maxHeight - (index % 2 === 0 ? 0 : 2)
                                 duration: 280 + index * 80
                                 easing.type: Easing.InOutSine
                             }
                             NumberAnimation {
-                                to: waveBar.baseHeight + (index % 3 === 0 ? 2 : 0)
+                                to: waveBar.baseHeight + (index % 3 === 0 ? 1 : 0)
                                 duration: 320 + index * 60
                                 easing.type: Easing.InOutSine
                             }
                         }
 
-                        // Smooth collapse when paused
                         Behavior on height {
                             enabled: !root.isPlaying
                             NumberAnimation { duration: 200; easing.type: Easing.OutCubic }

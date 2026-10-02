@@ -92,16 +92,6 @@
       "right": [
         {
           "id": "CustomButton",
-          "icon": "music",
-          "showIcon": true,
-          "textCommand": "",
-          "textIntervalMs": 2000,
-          "generalTooltipText": "Fluent Media Flyout",
-          "showExecTooltip": false,
-          "leftClickExec": "bash -c 'echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger'"
-        },
-        {
-          "id": "CustomButton",
           "icon": "git-branch",
           "showIcon": true,
           "textCommand": "",
