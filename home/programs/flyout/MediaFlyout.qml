@@ -27,8 +27,16 @@ PanelWindow {
     implicitHeight: 170
     color: "transparent"
 
-    // Flyout visibility state with smooth fade animation
-    property bool flyoutVisible: false
+    // --- Explicit State Machine ---
+    // States: "IDLE" | "AUTO_POPPED" | "MANUALLY_PINNED" | "HIDDEN"
+    // IDLE           = flyout is not shown, no pending actions
+    // AUTO_POPPED    = flyout was auto-shown by track change, will auto-dismiss
+    // MANUALLY_PINNED = flyout was toggled open by user, will auto-dismiss on timer
+    // HIDDEN         = flyout was explicitly dismissed by user or timer
+    property string flyoutState: "IDLE"
+
+    // Derived visibility from state machine (replaces old flyoutVisible bool)
+    readonly property bool flyoutVisible: flyoutState === "AUTO_POPPED" || flyoutState === "MANUALLY_PINNED"
     visible: card.opacity > 0.0
 
     // Media properties
@@ -44,6 +52,9 @@ PanelWindow {
 
     readonly property bool isPlaying: playbackStatus === "Playing"
 
+    // IPC trigger counter: monotonically incremented by external callers
+    property int lastTriggerCounter: 0
+
     // Time formatting helper (MM:SS)
     function formatTime(totalSeconds) {
         if (isNaN(totalSeconds) || totalSeconds <= 0) return "00:00";
@@ -54,29 +65,38 @@ PanelWindow {
         return minStr + ":" + secStr;
     }
 
+    // --- State Machine Transitions ---
+
+    // Manual toggle: fully decoupled from MPRIS metadata state
     function toggleFlyout() {
-        if (flyoutVisible) {
-            closeFlyout();
+        if (flyoutState === "AUTO_POPPED" || flyoutState === "MANUALLY_PINNED") {
+            transitionTo("HIDDEN");
         } else {
-            openFlyout();
+            refreshMedia();
+            transitionTo("MANUALLY_PINNED");
         }
     }
 
-    function openFlyout() {
-        refreshMedia();
-        flyoutVisible = true;
-        dismissTimer.restart();
-    }
-
-    function closeFlyout() {
-        dismissTimer.stop();
-        flyoutVisible = false;
-    }
-
+    // Auto-popup on track change (respects manual pin)
     function triggerAutoPopup() {
+        if (flyoutState === "MANUALLY_PINNED") return;
         refreshMedia();
-        flyoutVisible = true;
-        dismissTimer.restart();
+        transitionTo("AUTO_POPPED");
+    }
+
+    // Explicit close by user action (close button or dismiss timer)
+    function closeFlyout() {
+        transitionTo("HIDDEN");
+    }
+
+    // Central state transition handler
+    function transitionTo(newState) {
+        flyoutState = newState;
+        if (newState === "AUTO_POPPED" || newState === "MANUALLY_PINNED") {
+            dismissTimer.restart();
+        } else {
+            dismissTimer.stop();
+        }
     }
 
     // Auto-dismiss timer (3500ms duration, cancelled on hover)
@@ -86,7 +106,7 @@ PanelWindow {
         repeat: false
         onTriggered: {
             if (!cardHoverArea.containsMouse) {
-                flyoutWindow.flyoutVisible = false;
+                flyoutWindow.transitionTo("IDLE");
             }
         }
     }
@@ -188,32 +208,44 @@ PanelWindow {
         if (!refreshProcess.running) refreshProcess.running = true;
     }
 
-    // IPC Socket Listener on /tmp/fluent_flyout.sock
+    // --- Robust IPC: Monotonic counter file trigger ---
+    // External callers increment /tmp/fluent_flyout_trigger counter via:
+    //   bash -c 'echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger'
+    // A fast polling timer reads the file and detects counter changes.
+    // This eliminates all blocking socket issues and fragile FileView mtime races.
     Process {
-        id: socketListener
-        command: ["sh", "-c", "rm -f /tmp/fluent_flyout.sock; while true; do nc -l -U /tmp/fluent_flyout.sock 2>/dev/null; echo 'toggle'; done"]
+        id: triggerReadProcess
+        command: ["cat", "/tmp/fluent_flyout_trigger"]
         stdout: SplitParser {
             onRead: data => {
-                flyoutWindow.toggleFlyout();
+                var val = parseInt(data.trim());
+                if (!isNaN(val) && val !== flyoutWindow.lastTriggerCounter) {
+                    flyoutWindow.lastTriggerCounter = val;
+                    flyoutWindow.toggleFlyout();
+                }
             }
         }
     }
 
-    // Secondary file-watch trigger fallback on /tmp/fluent_flyout_trigger
-    FileView {
-        id: triggerFileView
-        path: "/tmp/fluent_flyout_trigger"
-        watchChanges: true
-        onFileChanged: {
-            flyoutWindow.toggleFlyout();
+    // Poll trigger file at 150ms for responsive manual toggling
+    Timer {
+        id: triggerPollTimer
+        interval: 150
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!triggerReadProcess.running) {
+                triggerReadProcess.running = true;
+            }
         }
     }
 
+    // Initialize trigger file with counter 0 on startup, seed lastTriggerCounter
     Component.onCompleted: {
-        Quickshell.execDetached(["touch", "/tmp/fluent_flyout_trigger"]);
-        socketListener.running = true;
+        Quickshell.execDetached(["sh", "-c", "echo 0 > /tmp/fluent_flyout_trigger"]);
         playerWatcher.running = true;
         refreshMedia();
+        triggerReadProcess.running = true;
     }
 
     // Fluent Glass Blur Card (380px x 170px, radius 16px, background #09090b @ 0.75, specular border)

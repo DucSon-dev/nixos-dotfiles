@@ -79,14 +79,14 @@ Item {
         id: capsuleBackground
         anchors.fill: parent
         implicitHeight: 32
-        implicitWidth: contentLayout.implicitWidth + 24
+        implicitWidth: contentLayout.implicitWidth + 20
         radius: 16
         color: Qt.rgba(9 / 255, 9 / 255, 11 / 255, 0.72)
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
         border.width: 1
         clip: true
 
-        // Click action on capsule body toggles the Media Flyout card via IPC socket & trigger file
+        // Click action on capsule body toggles the Media Flyout via monotonic counter IPC
         MouseArea {
             id: capsuleClickArea
             anchors.fill: parent
@@ -94,20 +94,21 @@ Item {
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 root.toggleFlyoutRequested();
-                Quickshell.execDetached(["sh", "-c", "echo toggle | nc -U /tmp/fluent_flyout.sock 2>/dev/null || touch /tmp/fluent_flyout_trigger"]);
+                // Monotonic counter increment: non-blocking, no socket dependency
+                Quickshell.execDetached(["sh", "-c", "echo $(($(cat /tmp/fluent_flyout_trigger 2>/dev/null || echo 0)+1)) > /tmp/fluent_flyout_trigger"]);
             }
         }
 
         RowLayout {
             id: contentLayout
             anchors.centerIn: parent
-            spacing: 8
+            spacing: 6
 
-            // Album Artwork / Music Icon Thumbnail
+            // Album Artwork Thumbnail (22x22, 4px border radius per spec)
             Rectangle {
-                width: 20
-                height: 20
-                radius: 6
+                width: 22
+                height: 22
+                radius: 4
                 color: Qt.rgba(24 / 255, 24 / 255, 27 / 255, 0.85)
                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
                 border.width: 1
@@ -131,54 +132,43 @@ Item {
                 }
             }
 
-            // Text Marquee Section (Track Title and Artist)
-            Item {
-                id: marqueeContainer
-                implicitWidth: 120
-                implicitHeight: 16
-                clip: true
+            // Two-Line Stacked Metadata (Title bold + Artist muted)
+            ColumnLayout {
+                spacing: 0
                 Layout.alignment: Qt.AlignVCenter
+                Layout.maximumWidth: 110
 
-                readonly property string displayString: root.trackArtist !== ""
-                    ? (root.trackTitle + " • " + root.trackArtist)
-                    : root.trackTitle
-
+                // Line 1: Track Title (bold white, truncated with ellipsis)
                 Text {
-                    id: primaryLabel
-                    y: (parent.height - contentHeight) / 2
-                    text: marqueeContainer.displayString
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 110
+                    text: root.trackTitle
                     font.family: "Geist"
                     font.pixelSize: 11
-                    font.weight: Font.Medium
+                    font.weight: Font.Bold
                     color: "#fafafa"
-
-                    NumberAnimation on x {
-                        id: scrollAnim
-                        running: primaryLabel.implicitWidth > marqueeContainer.implicitWidth && root.isPlaying
-                        loops: Animation.Infinite
-                        from: 0
-                        to: -(primaryLabel.implicitWidth + 24)
-                        duration: Math.max(3000, primaryLabel.implicitWidth * 35)
-                    }
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
                 }
 
+                // Line 2: Artist Name (muted zinc-400, 10px)
                 Text {
-                    id: secondaryLabel
-                    y: (parent.height - contentHeight) / 2
-                    x: primaryLabel.x + primaryLabel.implicitWidth + 24
-                    text: marqueeContainer.displayString
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 110
+                    text: root.trackArtist !== "" ? root.trackArtist : root.playerName
                     font.family: "Geist"
-                    font.pixelSize: 11
-                    font.weight: Font.Medium
-                    color: "#fafafa"
-                    visible: scrollAnim.running
+                    font.pixelSize: 10
+                    color: "#a1a1aa"
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                    visible: root.trackArtist !== "" || root.playerName !== ""
                 }
             }
 
-            // Interactive Controls (Previous, Play/Pause toggle, Next)
+            // Inline Playback Controls (Previous, Play/Pause, Next)
             RowLayout {
                 id: controlsRow
-                spacing: 4
+                spacing: 2
                 Layout.alignment: Qt.AlignVCenter
 
                 // Previous Button
@@ -257,6 +247,57 @@ Item {
                         onClicked: {
                             Quickshell.execDetached(["playerctl", "next"]);
                             metadataProcess.running = true;
+                        }
+                    }
+                }
+            }
+
+            // Simulated Audio Spectrum Wave Visualizer (4 animated bars)
+            Row {
+                id: visualizerRow
+                spacing: 2
+                Layout.alignment: Qt.AlignVCenter
+                visible: root.isPlaying
+
+                Repeater {
+                    model: 4
+
+                    Rectangle {
+                        id: waveBar
+                        width: 2
+                        radius: 1
+                        color: "#38bdf8"
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        // Each bar has a unique phase offset for organic wave motion
+                        property real phase: index * 0.7
+                        property real baseHeight: 4
+                        property real maxHeight: 14
+
+                        height: root.isPlaying ? baseHeight : 3
+
+                        // Continuous pulsing animation when playing
+                        SequentialAnimation on height {
+                            id: pulseAnim
+                            running: root.isPlaying
+                            loops: Animation.Infinite
+
+                            NumberAnimation {
+                                to: waveBar.maxHeight - (index % 2 === 0 ? 0 : 4)
+                                duration: 280 + index * 80
+                                easing.type: Easing.InOutSine
+                            }
+                            NumberAnimation {
+                                to: waveBar.baseHeight + (index % 3 === 0 ? 2 : 0)
+                                duration: 320 + index * 60
+                                easing.type: Easing.InOutSine
+                            }
+                        }
+
+                        // Smooth collapse when paused
+                        Behavior on height {
+                            enabled: !root.isPlaying
+                            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
                         }
                     }
                 }
