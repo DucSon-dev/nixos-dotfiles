@@ -15,7 +15,6 @@
 
   # Wayland Environment Variables for Input Method Engine
   environment.sessionVariables = {
-    XMODIFIERS = "@im=fcitx";
     QT_IM_MODULE = "fcitx";
   };
 }

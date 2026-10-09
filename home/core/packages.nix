@@ -22,7 +22,9 @@
     lazygit
     nautilus
     
-
+    # AI & Agentic Development
+    antigravity-fhs
+   
     # Media & Audio
     amberol
     playerctl
@@ -59,6 +61,17 @@
    # Icon & Cursor Fallbacks (Fix missing icon / purple checkerboard)
    adwaita-icon-theme
    papirus-icon-theme
-   vanilla-dmz   
+   vanilla-dmz
+   
+   # Code-Graph & Nix Language Analysis Engine
+    nil
+    graphviz
+   
+   # GTK / Libadwaita GSettings & Schema Tooling
+    glib
+    gsettings-desktop-schemas
+
+   remmina
+   freerdp   
   ];
 }

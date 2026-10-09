@@ -4,6 +4,19 @@
 # Style Spec: shadcn Dark Zinc | High-Performance Non-Blocking TTY Poller
 # ==============================================================================
 
+
+AUTO_APPROVE=false
+for arg in "$@"; do
+  case "$arg" in
+    -y|--yes|--non-interactive)
+      AUTO_APPROVE=true
+      shift
+      ;;
+  esac
+done
+
+
+
 set -o pipefail
 
 # --- 1. Terminal Styles & Color Tokens (shadcn Dark Zinc) ---
@@ -136,9 +149,14 @@ FLAKE_TARGET=".#${HOST_NAME}"
 run_with_telemetry "Dry-building Generation" nixos-rebuild dry-build --flake "$FLAKE_TARGET"
 
 print_badge "4/4" "Deployment Confirmation"
-printf "\033[?25h"
-read -p " Ready to switch into new generation? (y/N) " -n 1 -r CONFIRM
-echo
+if [[ "$AUTO_APPROVE" == true ]]; then
+  CONFIRM="y"
+  printf " %sAuto-approval flag detected. Proceeding with deployment...%s\n" "$CLR_WARN" "$CLR_RESET"
+else
+  printf "\033[?25h"
+  read -p " Ready to switch into new generation? (y/N) " -n 1 -r CONFIRM
+  echo
+fi
 
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
   git add .

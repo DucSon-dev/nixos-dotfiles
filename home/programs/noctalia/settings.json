@@ -10,7 +10,7 @@
     "clockFormat": "HH:mm",
     "clockStyle": "minimal",
     "compactLockScreen": true,
-    "dimmerOpacity": 0.0,
+    "dimmerOpacity": 0,
     "enableBlurBehind": true,
     "enableLockScreenCountdown": false,
     "enableLockScreenMediaControls": false,
@@ -22,7 +22,7 @@
     "lockScreenBlur": 24,
     "lockScreenCountdownDuration": 0,
     "lockScreenMonitors": [],
-    "lockScreenTint": 0.0,
+    "lockScreenTint": 0,
     "passwordChars": true,
     "radiusRatio": 1.2,
     "reverseScroll": false,
@@ -107,6 +107,9 @@
           "showCpuTemp": false
         },
         {
+          "id": "Network"
+        },
+        {
           "id": "Volume",
           "displayMode": "onhover"
         },
@@ -132,9 +135,9 @@
   "ui": {
     "boxBorderEnabled": true,
     "fontDefault": "Geist",
-    "fontDefaultScale": 1.0,
+    "fontDefaultScale": 1,
     "fontFixed": "GeistMono Nerd Font",
-    "fontFixedScale": 1.0,
+    "fontFixedScale": 1,
     "panelBackgroundOpacity": 0.85,
     "panelsAttachedToBar": true,
     "scrollbarAlwaysVisible": false,

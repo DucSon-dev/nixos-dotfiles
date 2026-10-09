@@ -71,15 +71,42 @@
     });
   '';
 
+
+  #  Sudo Rules: Scoped Passwordless Privileges for Deployment Pipeline
+  security.sudo.extraRules = [
+    {
+      users = [ "ducson" ];
+      commands = [
+        {
+          command = "/etc/nixos/scripts/deploy.sh";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
+
   # 6. Enable Zsh system-wide and configure user shell
   programs.zsh.enable = true;
+  programs.dconf.enable = true;
   users.defaultUserShell = pkgs.zsh;
   
   # 7. System-wide Core Packages and CLI Utilities (ĐOẠN MỚI THÊM)
   environment.systemPackages = with pkgs; [
     git
     coreutils
+    qt6.qtwayland
+    libsForQt5.qtwayland
   ];
+
+  # System-wide Session Variables for Wayland & Qt applications
+  environment.sessionVariables = {
+    QT_QPA_PLATFORM = "wayland;xcb";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+  };
 
   # 8. Pre-shutdown Git Auto-Snapshot Service (Zero Disk Bloat, Instant Execution)
   systemd.services.nixos-auto-snapshot = {

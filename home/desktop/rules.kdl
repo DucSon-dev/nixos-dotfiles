@@ -40,8 +40,8 @@ window-rule {
 window-rule {
     match app-id="^music-fetch-float$"
     open-floating true
-    default-column-width { proportion 0.40; }
-    default-window-height { proportion 0.25; }
+    default-column-width { proportion 0.55; }
+    default-window-height { proportion 0.48; }
 }
 
 
@@ -60,4 +60,20 @@ window-rule {
 window-rule {
     match app-id="^anki$" title="^Edit Current$"
     open-floating true
+}
+
+// Antigravity IDE Window Rule
+window-rule {
+    match app-id="^antigravity(-ide)?$"
+    default-column-width { proportion 0.85; }
+    geometry-corner-radius 16
+    clip-to-geometry true
+}
+
+// FluentFlyout Manager Standalone Window Rule
+window-rule {
+    match app-id="^quickshell$" title="^FluentFlyout Manager$"
+    open-floating true
+    default-column-width { fixed 480; }
+    default-window-height { fixed 540; }
 }

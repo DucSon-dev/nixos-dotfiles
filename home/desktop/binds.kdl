@@ -14,7 +14,7 @@ binds {
     Mod+P { spawn "keepassxc"; }                                                       // Password Manager (KeePassXC)
     Mod+M { spawn "amberol"; }                                                         // Music Player (Amberol)
     Mod+Shift+M { spawn "bash" "/home/ducson/.config/noctalia/scripts/music-fetch.sh"; } // Fetch/Download Song to ~/Music   
-
+    Mod+Shift+A { spawn "antigravity-ide" "--enable-features=UseOzonePlatform" "--ozone-platform=wayland"; } // AI Agent IDE (Antigravity)
 
     // ==========================================
     // 2. WINDOW LIFECYCLE & STATE

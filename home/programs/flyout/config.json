@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "theme": {
+    "variant": "dark-zinc",
+    "surfaceColor": "#09090b",
+    "surfaceOpacity": 0.72,
+    "blurRadius": 32,
+    "borderColor": "rgba(255, 255, 255, 0.12)",
+    "borderWidth": 1,
+    "cornerRadius": 16,
+    "accentColor": "#fafafa"
+  },
+  "modules": {
+    "taskbarCapsule": {
+      "enabled": true,
+      "marqueeSpeed": 40,
+      "maxCapsuleWidth": 260,
+      "compactHeight": 32,
+      "cornerRadius": 16,
+      "backgroundColor": "#09090b",
+      "backgroundOpacity": 0.72,
+      "borderColor": "rgba(255, 255, 255, 0.12)",
+      "borderWidth": 1
+    },
+    "mediaFlyout": {
+      "enabled": true,
+      "anchor": "top-center",
+      "popupWidth": 380,
+      "popupHeight": 180,
+      "cornerRadius": 16,
+      "backgroundColor": "#09090b",
+      "backgroundOpacity": 0.72,
+      "borderColor": "rgba(255, 255, 255, 0.12)",
+      "borderWidth": 1,
+      "albumArtRadius": 12,
+      "animationDurationMs": 220,
+      "autoHideTimeoutMs": 4000
+    },
+    "osdEngine": {
+      "enabled": true,
+      "anchor": "top-right",
+      "timeoutMs": 2500,
+      "animationDurationMs": 180,
+      "showLockKeys": true,
+      "showVolume": true,
+      "showBacklight": true
+    }
+  }
+}
