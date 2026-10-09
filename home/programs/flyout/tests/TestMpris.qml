@@ -97,6 +97,7 @@ QtObject {
 
             case 4:
                 console.log("[TEST 4] Seek position update and targeted IPC seek trigger (io.bassi.Amberol)");
+                bridge.lastPreemptionTime = 0;
                 var seekLine = "io.bassi.Amberol|||Subdivisions|||Rush|||Signals|||https://example.com/art.png|||Playing|||14000000|||173000000|||true|||true|||None|||false";
                 bridge.parseMetadata(seekLine);
                 assert(bridge.activePlayer === "io.bassi.Amberol", "Active player must be io.bassi.Amberol");
@@ -160,6 +161,7 @@ QtObject {
 
             case 7:
                 console.log("[TEST 7] Multi-Player Session Switching (Amberol -> Brave)");
+                bridge.lastPreemptionTime = 0;
                 // Ingest Brave session metadata
                 var braveLine = "brave|||Brave Track|||Brave Artist|||Brave Album|||http://art|||Playing|||30000000|||180000000|||true|||true|||None|||false";
                 bridge.parseMetadata(braveLine);
@@ -171,6 +173,7 @@ QtObject {
                 assert(bravePlayCmd[0] === "playerctl" && bravePlayCmd[1] === "--player=brave" && bravePlayCmd[2] === "play-pause", "Brave targeted IPC failed: " + JSON.stringify(bravePlayCmd));
 
                 // Switch back to Amberol session
+                bridge.lastPreemptionTime = 0;
                 var amberolLine = "io.bassi.Amberol|||Amberol Track|||Amberol Artist|||Amberol Album|||http://art|||Playing|||10000000|||200000000|||true|||true|||None|||false";
                 bridge.parseMetadata(amberolLine);
                 assert(bridge.activePlayer === "io.bassi.Amberol", "Session switch back to io.bassi.Amberol failed");

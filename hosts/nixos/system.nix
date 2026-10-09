@@ -98,7 +98,15 @@
   environment.systemPackages = with pkgs; [
     git
     coreutils
+    qt6.qtwayland
+    libsForQt5.qtwayland
   ];
+
+  # System-wide Session Variables for Wayland & Qt applications
+  environment.sessionVariables = {
+    QT_QPA_PLATFORM = "wayland;xcb";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+  };
 
   # 8. Pre-shutdown Git Auto-Snapshot Service (Zero Disk Bloat, Instant Execution)
   systemd.services.nixos-auto-snapshot = {
