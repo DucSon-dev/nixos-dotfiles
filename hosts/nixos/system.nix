@@ -71,6 +71,24 @@
     });
   '';
 
+
+  #  Sudo Rules: Scoped Passwordless Privileges for Deployment Pipeline
+  security.sudo.extraRules = [
+    {
+      users = [ "ducson" ];
+      commands = [
+        {
+          command = "/etc/nixos/scripts/deploy.sh";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
+
   # 6. Enable Zsh system-wide and configure user shell
   programs.zsh.enable = true;
   programs.dconf.enable = true;

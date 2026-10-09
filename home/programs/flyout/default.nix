@@ -25,6 +25,18 @@ in
     xdg.configFile."fluent-flyout/TaskbarCapsule.qml".source = ./TaskbarCapsule.qml;
     xdg.configFile."fluent-flyout/FlyoutManager.qml".source = ./FlyoutManager.qml;
     xdg.configFile."fluent-flyout/config.json".source = ./config.json;
+    xdg.configFile."fluent-flyout/core".source = ./core;
+    xdg.configFile."fluent-flyout/ui".source = ./ui;
+
+    # Desktop entry for Fuzzel / Application Launcher indexing
+    xdg.desktopEntries.fluent-flyout-manager = {
+      name = "FluentFlyout Manager";
+      comment = "Preferences and Service Manager for FluentFlyout Layer-Shell";
+      exec = "fluent-flyout-manager";
+      icon = "preferences-system";
+      terminal = false;
+      categories = [ "Settings" "DesktopSettings" "Utility" ];
+    };
 
     # Systemd User Service: Runs standalone background daemon within graphical session
     systemd.user.services.fluent-flyout = {
@@ -38,6 +50,7 @@ in
         Restart = "always";
         RestartSec = "2s";
         Environment = [
+          "PATH=/run/wrappers/bin:/home/ducson/.nix-profile/bin:/etc/profiles/per-user/ducson/bin:/run/current-system/sw/bin"
           "XDG_RUNTIME_DIR=/run/user/1000"
           "WAYLAND_DISPLAY=wayland-1"
         ];

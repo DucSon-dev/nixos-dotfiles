@@ -69,6 +69,9 @@
    
    # GTK / Libadwaita GSettings & Schema Tooling
     glib
-    gsettings-desktop-schemas   
+    gsettings-desktop-schemas
+
+   remmina
+   freerdp   
   ];
 }

@@ -1,19 +1,41 @@
 import Quickshell
+import "core" as Core
+import "ui" as UI
 
+// Master Shell Entrypoint for FluentFlyout
+// Instantiates shared StateMachine, MprisBridge, and OsdBridge foundation singletons,
+// cleanly injecting dependencies into TaskbarCapsule, MediaFlyout, and SystemOsd.
 Scope {
     id: rootScope
-    property bool isFlyoutExpanded: false
 
-    TaskbarCapsule {
-        expanded: rootScope.isFlyoutExpanded
-        onToggleRequested: rootScope.isFlyoutExpanded = !rootScope.isFlyoutExpanded
+    // Shared foundation singletons
+    Core.StateMachine {
+        id: sharedFsm
     }
 
-    MediaFlyout {
-        isOpen: rootScope.isFlyoutExpanded
-        onCloseRequested: rootScope.isFlyoutExpanded = false
-        onOpenRequested: rootScope.isFlyoutExpanded = true
+    Core.MprisBridge {
+        id: sharedBridge
+        stateMachine: sharedFsm
     }
 
-    OsdFlyout {}
+    Core.OsdBridge {
+        id: sharedOsdBridge
+    }
+
+    // Floating Taskbar Capsule
+    UI.TaskbarCapsule {
+        fsm: sharedFsm
+        bridge: sharedBridge
+    }
+
+    // Interactive Media Flyout Card
+    UI.MediaFlyout {
+        fsm: sharedFsm
+        bridge: sharedBridge
+    }
+
+    // Ephemeral System OSD (Volume, Brightness, Lock Keys)
+    UI.SystemOsd {
+        bridge: sharedOsdBridge
+    }
 }
